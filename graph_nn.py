@@ -14,9 +14,9 @@ import torch
 import torch.nn as nn
 
 def angular_dist_score(y_true, y_pred):
-    az_pred = y_pred[:, 0]
-    az_true = y_true[:, 0]
-    zen_true = y_true[:, 1]
+    az_pred = y_pred[:,0]
+    az_true = y_true[0, :]
+    zen_true = y_true[1,:]
     zen_pred = y_pred[:, 1]
 
     # Check for non-finite values in input data
@@ -274,7 +274,7 @@ def model_creator():
             super().__init__()
             N_features = 20
 
-            self.f1 = DNNLayer(7, N_features)
+            self.f1 = DNNLayer(6, N_features)
             self.f2 = DNNLayer(N_features, N_features)
             self.f3 = DNNLayer(N_features, N_features)  
             self.output = nn.Linear(N_features, 2)
@@ -282,13 +282,27 @@ def model_creator():
         def forward(self, data):
             x = data.x
             edge_index = data.edge_index
+            print("shape before f1",x.shape)
+
             h = self.f1( h = x, edge_index = edge_index)
+            print("shape after f1",h.shape)
+
             h = h.relu()
+            print("shape after relu",h.shape)
+
             h = self.f2( h=h,  edge_index = edge_index)
+            print("shape after f2",h.shape)
+
             h = h.relu()
+            print("shape after relu",h.shape)
+
             h = self.f3( h=h,  edge_index = edge_index)
+            print("shape after f3",h.shape)
+
             h = h.relu()
-            h = h.output(h)
+            print("shape after relu",h.shape)
+            
+            h = self.output(h)
 
             return h
     
@@ -303,29 +317,19 @@ def model_creator():
 def tensor_creator(df, targets):
 
     unique_events = pd.unique(df.index.get_level_values(0))
-    print(unique_events)
+    sliced_unique_events = unique_events[:2]
+    print(sliced_unique_events)
 
     data_list = []
 
-    class MyDataset(Dataset):
-        def __init__(self, data):
-            self.data = data
-        
-        def __len__(self):
-            return len(self)
-        
-        def __getitem__(self, idx):
-            
-            data = self.data[idx]
 
-            return data.x, data.y
 
-    def minkowski_distance(x,y):
-        spatial_distance = torch.norm(x[:3] - y[:3], p=2)  # Minkowski spatial distance
-        temporal_distance = torch.abs(x[3] - y[3])  # Absolute temporal distance
-        return (spatial_distance**2 + temporal_distance**2)**(1/2)
+    # def minkowski_distance(x,y):
+    #     spatial_distance = torch.norm(x[:3] - y[:3], p=2)  # Minkowski spatial distance
+    #     temporal_distance = torch.abs(x[3] - y[3])  # Absolute temporal distance
+    #     return (spatial_distance**2 + temporal_distance**2)**(1/2)
 
-    for event_id in unique_events:
+    for event_id in sliced_unique_events:
         # Extract data for the current event
         event_data = df[df.index.get_level_values(0) == event_id]
         event_targets = targets[targets['event_id'] == event_id]
@@ -334,14 +338,21 @@ def tensor_creator(df, targets):
         node_features = event_data[['charge', 'x', 'y', 'z', 'time']]
         node_targets = event_targets[['azimuth', 'zenith']]
         ##print(node_features)
-        data = MyDataset.Data(x = torch.Tensor(node_features.values.reshape(5,-1).T), y = torch.Tensor(node_targets.values).reshape(-1,1))
+        data = Data(x = torch.Tensor(node_features.values.reshape(5,-1).T), y = torch.Tensor(node_targets.values).reshape(-1,1))
         # Add the Data object to the list
         ##print(data.x)
         ##print(data.y)
         data_list.append(data)
 
+        print(f"Event ID: {event_id}")
+        print("Node Features Shape:", data.x.shape)
+        print("Node Targets Shape:", data.y.shape)
+
+
         nNeighbors = 5
         data.edge_index = knn_graph(data.x, k=nNeighbors)
+
+        print("Edge Index Shape (After):", data.edge_index.shape)
 
         ##print(data.edge_index)
 
@@ -350,28 +361,69 @@ def tensor_creator(df, targets):
         #print(data.edge_index.size(1))
         
         #print(data.edge_index)
-        cluster_charge = torch.zeros(data.edge_index.max().item() + 1, dtype=data.x.dtype, device=data.x.device)
+        cluster_charge = torch.zeros(data.x.size(0), dtype=data.x.dtype, device=data.x.device)
 
         for i in range(data.edge_index.size(1)):
             #print(data.x[data.edge_index[1, i], 1])
-            cluster_charge[data.edge_index[0, i]] += data.x[data.edge_index[1, i], 1] #charge is the second feature of data tensor
-        
-        data = torch.cat([data.x, cluster_charge.view(-1, 1)], dim=-1)
+            idx_0 = data.edge_index[0, i]
+            idx_1 = data.edge_index[1, i]
+            charge_value = data.x[idx_1, 0]
+    
+            cluster_charge[idx_0] += charge_value
+
+        print(cluster_charge.shape)
+        print(cluster_charge)
+        data.x = torch.cat([data.x, cluster_charge.view(-1, 1)], dim=-1)
+
+        print("Final Node Features Shape:", data.x.shape)
+        print("Final Edge Index Shape:", data.edge_index.shape)
+
 
         print(f"finished event: {event_id}")
+    print("info on data.x")
+    print(data.x.shape)
+    print("info on data.edge_index")
+    print(data.edge_index.shape)
+    # concatenated_data = Data(x=torch.cat([d.x for d in data_list], dim=0),
+    #                      edge_index=torch.cat([d.edge_index for d in data_list], dim=1))
+    # print(concatenated_data)
 
-    concatenated_data = Data(x=torch.cat([d.x for d in data_list], dim=0),
-                         edge_index=torch.cat([d.edge_index for d in data_list], dim=1))
-    print(concatenated_data)
 
-    return concatenated_data
+    return data_list
+
 
 def training_function(model, dataset_train, dataset_test):
 
-    print(dataset_train.size())
 
-    train_loader = DataLoader(dataset_train, batch_size = 128, shuffle = False)
-    test_loader = DataLoader(dataset_test, batch_size = 128, shuffle = False)
+    print(dataset_train[0])
+    print(dataset_test[0])
+    class MyDataset(Dataset):
+        def __init__(self, data_list):
+            print("Initializing dataset")
+            self.data_list = data_list
+        
+        def __len__(self):
+            return len(self.data_list)
+        
+        def __getitem__(self, idx):
+            
+            data = self.data_list[idx]
+            print("type from __getitem__", type(data))
+            return data
+        
+
+
+
+    custom_dataset_train = MyDataset(dataset_train)
+    custom_dataset_test = MyDataset(dataset_test)
+
+
+    train_loader = DataLoader(custom_dataset_train, batch_size = 128, shuffle = False)
+    test_loader = DataLoader(custom_dataset_test, batch_size = 128, shuffle = False)
+
+    for batch in train_loader:
+        print(type(batch))
+
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.0001)
 
 

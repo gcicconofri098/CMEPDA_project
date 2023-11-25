@@ -9,6 +9,8 @@ __pycache__/
 #my stuff
 *.pkl
 *.png
+for_reshape.py
+subset.py
 
 
 # Distribution / packaging
