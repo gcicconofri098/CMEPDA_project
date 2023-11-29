@@ -250,7 +250,7 @@ def model_creator():
     class Graph_Network(nn.Module):
         def __init__(self):
             super().__init__()
-            N_features = 20
+            N_features = 30
 
             self.f1 = DNNLayer(6, N_features)
             self.f2 = DNNLayer(N_features, N_features)
@@ -300,14 +300,13 @@ def model_creator():
 
 
 
-def tensor_creator(df, targets):
+def tensor_creator(df, targets, label):
 
     unique_events = pd.unique(df.index.get_level_values(0))
-    sliced_unique_events = unique_events[:1]
+    sliced_unique_events = unique_events[:3]
     #print(sliced_unique_events)
 
     data_list = []
-
 
 
     # def minkowski_distance(x,y):
@@ -315,118 +314,119 @@ def tensor_creator(df, targets):
     #     temporal_distance = torch.abs(x[3] - y[3])  # Absolute temporal distance
     #     return (spatial_distance**2 + temporal_distance**2)**(1/2)
 
-    for event_id in sliced_unique_events:
+    for event_id in unique_events:
         # Extract data for the current event
-        event_data = df[df.index.get_level_values(0) == event_id]
-        event_targets = targets[targets['event_id'] == event_id]
+        event_data = df[df.index.get_level_values(0) == event_id].copy()
+        event_targets = targets[targets['event_id'] == event_id].copy()
 
+        nan_value = float("NaN")
+        event_data.replace(0.0, nan_value, inplace= True)
+        event_data.dropna(how= 'all', axis = 1, inplace = True)
+        #print("printing pandas before creating the tensor")
+        #print(event_data)
         # Extract node features
         node_features = event_data[['charge', 'x', 'y', 'z', 'time']]
         node_targets = event_targets[['azimuth', 'zenith']]
         ##print(node_features)
         data = Data(x = torch.Tensor(node_features.values.reshape(5,-1).T), y = torch.Tensor(node_targets.values).reshape(-1,2))
         # Add the Data object to the list
-        ##print(data.x)
-        ##print(data.y)
+        # print(data.x)
+        # print(data.y)
         data_list.append(data)
 
-        # print(f"Event ID: {event_id}")
+        print(f"Event ID: {event_id}")
         # print("Node Features Shape:", data.x.shape)
         # print("Node Targets Shape:", data.y.shape)
 
-        scatter = plt.scatter([], [], c=[], cmap='viridis')
+        #scatter = plt.scatter([], [], c=[], cmap='viridis')
 
         nNeighbors = 5
         data.edge_index = knn_graph(data.x, k=nNeighbors, loop = False)
 
-        g = torch_geometric.utils.to_networkx(data)
-        x = data.x
+        # g = torch_geometric.utils.to_networkx(data)
+        # x = data.x
 
-        pos = {i: (x[i, 1].item(), x[i, 2].item()) for i in range(len(x))}
-        subset_graph = g.subgraph(range(len(x)))        
+        # pos = {i: (x[i, 1].item(), x[i, 2].item()) for i in range(len(x))}
+        # subset_graph = g.subgraph(range(len(x)))        
 
-        node_colors = x[:, 0].numpy()
-        node_size = 40
+        # node_colors = x[:, 0].numpy()
+        # node_size = 40
 
-        #! AZIMUTH
+        # #! AZIMUTH
 
-        fig, ax = plt.subplots()
-        nx.draw(subset_graph,pos= pos, node_color =node_colors, node_size = node_size, cmap = 'viridis', with_labels = True, ax=fig.add_subplot(111))
-        plt.show()
+        # fig, ax = plt.subplots()
+        # nx.draw(subset_graph,pos= pos, node_color =node_colors, node_size = node_size, cmap = 'viridis', with_labels = False, ax=fig.add_subplot(121))
+        # plt.show()
 
-        # plt.axhline(0, color='black', linestyle='--', linewidth=1)
-        # plt.axvline(0, color='black', linestyle='--', linewidth=1)
+        # # plt.axhline(0, color='black', linestyle='--', linewidth=1)
+        # # plt.axvline(0, color='black', linestyle='--', linewidth=1)
  
-        # x_min, x_max = x[:, 1].min().item(), x[:, 1].max().item()
-        # y_min, y_max = x[:, 2].min().item(), x[:, 2].max().item()
-        # plt.xlim(x_min, x_max)
-        # plt.ylim(y_min, y_max)
+        # # x_min, x_max = x[:, 1].min().item(), x[:, 1].max().item()
+        # # y_min, y_max = x[:, 2].min().item(), x[:, 2].max().item()
+        # # plt.xlim(x_min, x_max)
+        # # plt.ylim(y_min, y_max)
 
-        # # Add axis labels
-        # plt.text(x_min - 0.1 * (x_max - x_min), y_min - 0.1 * (y_max - y_min), 'x', ha='center')
-        # plt.text(x_min - 0.15 * (x_max - x_min), y_min + 0.5 * (y_max - y_min), 'y', va='center', rotation='vertical')
+        # # # Add axis labels
+        # # plt.text(x_min - 0.1 * (x_max - x_min), y_min - 0.1 * (y_max - y_min), 'x', ha='center')
+        # # plt.text(x_min - 0.15 * (x_max - x_min), y_min + 0.5 * (y_max - y_min), 'y', va='center', rotation='vertical')
 
-        # # Add tick values
-        # plt.text(x_min, y_min - 0.05 * (y_max - y_min), f'{x_min:.2f}', ha='center')
-        # plt.text(x_max, y_min - 0.05 * (y_max - y_min), f'{x_max:.2f}', ha='center')
-        # plt.text(x_min - 0.08 * (x_max - x_min), y_min, f'{y_min:.2f}', va='center', rotation='vertical')
-        # plt.text(x_min - 0.08 * (x_max - x_min), y_max, f'{y_max:.2f}', va='center', rotation='vertical')
+        # # # Add tick values
+        # # plt.text(x_min, y_min - 0.05 * (y_max - y_min), f'{x_min:.2f}', ha='center')
+        # # plt.text(x_max, y_min - 0.05 * (y_max - y_min), f'{x_max:.2f}', ha='center')
+        # # plt.text(x_min - 0.08 * (x_max - x_min), y_min, f'{y_min:.2f}', va='center', rotation='vertical')
+        # # plt.text(x_min - 0.08 * (x_max - x_min), y_max, f'{y_max:.2f}', va='center', rotation='vertical')
 
-        ax = plt.gca()
-        ax.set(xlabel = 'x', ylabel = 'y')
-        text_azimuth = data.y[:,0]
-        text_zenith = data.y[:,1]
-
-
+        # ax = plt.gca()
+        # ax.set(xlabel = 'x', ylabel = 'y')
+        # text_azimuth = data.y[:,0]
+        # text_zenith = data.y[:,1]
 
 
-        plt.colorbar(scatter, label="Charge")
-        plt.text(0.5, 1.05, 'azimuth is: ' + str(text_azimuth), transform=plt.gca().transAxes, fontsize=12, ha='center')
 
-        plt.tight_layout()
 
-        plt.savefig("graph_proj_x_y.png")
-        plt.close()
+        # plt.colorbar(scatter, label="Charge")
+        # plt.text(0.5, 1.05, 'azimuth is: ' + str(text_azimuth), transform=plt.gca().transAxes, fontsize=12, ha='center')
 
-        #! ZENITH
+        # plt.savefig("graph_proj_x_y_" + str(event_id) + '_' + str(label) + ".png")
+        # plt.close()
 
-        fig, ax = plt.subplots()
+        # #! ZENITH
 
-        pos1 = {i: (x[i, 2].item(), x[i, 3].item()) for i in range(len(x))}
-        subset_graph1 = g.subgraph(range(len(x)))        
+        # fig, ax = plt.subplots()
 
-        node_colors = x[:, 0].numpy()
-        scatter = plt.scatter([], [], c=[], cmap='viridis',vmin=node_colors.min(), vmax=node_colors.max())
+        # pos1 = {i: (x[i, 2].item(), x[i, 3].item()) for i in range(len(x))}
+        # subset_graph1 = g.subgraph(range(len(x)))        
 
-        print("node colors", node_colors)
-        print(data.x)
-        nx.draw(subset_graph1,pos= pos1, node_color =node_colors, node_size = node_size, cmap = 'viridis', with_labels = True, ax=fig.add_subplot(121))
-        plt.show()
-        plt.text(0.5, 1.05, 'zenith is:' + str(text_zenith), transform=plt.gca().transAxes, fontsize=12, ha='center')
+        # node_colors = x[:, 0].numpy()
+        # scatter = plt.scatter([], [], c=[], cmap='viridis',vmin=node_colors.min(), vmax=node_colors.max())
+
+        # #print("node colors", node_colors)
+        # #print(data.x)
+        # nx.draw(subset_graph1,pos= pos1, node_color =node_colors, node_size = node_size, cmap = 'viridis', with_labels = False, ax=fig.add_subplot(121))
+        # plt.show()
+        # plt.text(0.5, 1.05, 'zenith is:' + str(text_zenith), transform=plt.gca().transAxes, fontsize=12, ha='center')
         
-        # x_min, x_max = x[:, 2].min().item(), x[:, 2].max().item()
-        # y_min, y_max = x[:, 3].min().item(), x[:, 3].max().item()
-        # plt.xlim(x_min, x_max)
-        # plt.ylim(y_min, y_max)
+        # # x_min, x_max = x[:, 2].min().item(), x[:, 2].max().item()
+        # # y_min, y_max = x[:, 3].min().item(), x[:, 3].max().item()
+        # # plt.xlim(x_min, x_max)
+        # # plt.ylim(y_min, y_max)
 
-        # # Add axis labels
-        # plt.text(x_min - 0.1 * (x_max - x_min), y_min - 0.11 * (y_max - y_min), 'y', ha='center')
-        # plt.text(x_min - 0.15 * (x_max - x_min), y_min + 0.5 * (y_max - y_min), 'z', va='center', rotation='vertical')
+        # # # Add axis labels
+        # # plt.text(x_min - 0.1 * (x_max - x_min), y_min - 0.11 * (y_max - y_min), 'y', ha='center')
+        # # plt.text(x_min - 0.15 * (x_max - x_min), y_min + 0.5 * (y_max - y_min), 'z', va='center', rotation='vertical')
 
-        # # Add tick values
-        # plt.text(x_min, y_min - 0.05 * (y_max - y_min), f'{x_min:.2f}', ha='center')
-        # plt.text(x_max, y_min - 0.05 * (y_max - y_min), f'{x_max:.2f}', ha='center')
-        # plt.text(x_min - 0.08 * (x_max - x_min), y_min, f'{y_min:.2f}', va='center', rotation='vertical')
-        # plt.text(x_min - 0.08 * (x_max - x_min), y_max, f'{y_max:.2f}', va='center', rotation='vertical')
+        # # # Add tick values
+        # # plt.text(x_min, y_min - 0.05 * (y_max - y_min), f'{x_min:.2f}', ha='center')
+        # # plt.text(x_max, y_min - 0.05 * (y_max - y_min), f'{x_max:.2f}', ha='center')
+        # # plt.text(x_min - 0.08 * (x_max - x_min), y_min, f'{y_min:.2f}', va='center', rotation='vertical')
+        # # plt.text(x_min - 0.08 * (x_max - x_min), y_max, f'{y_max:.2f}', va='center', rotation='vertical')
 
-        ax = plt.gca()
-        ax.set(xlabel = 'x', ylabel = 'y')
+        # ax = plt.gca()
+        # ax.set(xlabel = 'x', ylabel = 'y')
 
-        plt.colorbar(scatter, label="Charge")
+        # plt.colorbar(scatter, label="Charge")
 
-        plt.tight_layout()
-
-        plt.savefig("graph_proj_y_z.png")
+        # plt.savefig("graph_proj_y_z_" + str(event_id) + '_' + str(label) + ".png")
 
         #print("Edge Index Shape (After):", data.edge_index.shape)
 
@@ -491,8 +491,8 @@ def training_function(model, dataset_train, dataset_test):
         
 
     def root_mean_squared_error(y_true, y_pred):
-        print(y_true.shape)
-        print(y_pred.shape)
+        # print(y_true.shape)
+        # print(y_pred.shape)
         squared_diff = (y_true - y_pred)**2
         mean_squared_error = torch.mean(squared_diff)
         rmse = torch.sqrt(mean_squared_error)
@@ -500,6 +500,8 @@ def training_function(model, dataset_train, dataset_test):
 
     custom_dataset_train = MyDataset(dataset_train)
     custom_dataset_test = MyDataset(dataset_test)
+
+    loss_func = torch.nn.MSELoss()
 
 
     train_loader = DataLoader(custom_dataset_train, batch_size = 128, shuffle = False)
@@ -509,7 +511,7 @@ def training_function(model, dataset_train, dataset_test):
         # print(type(batch))
         # print(batch.batch)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr = 0.0001)
+    optimizer = torch.optim.Adam(model.parameters(), lr = 5*0.0001)
     
 
     def train(model, optimizer, loader):
@@ -521,28 +523,35 @@ def training_function(model, dataset_train, dataset_test):
             
             output = model(data)
             loss = angular_dist_score(data.y, output)
+            #loss = loss_func(output, data.y)
+
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
             rmse = root_mean_squared_error(data.y, output).item()
             total_rmse += rmse.item() if torch.is_tensor(rmse) else rmse
-            average_rmse = total_rmse / len(loader)
 
-        return total_loss / len(train_loader.dataset), average_rmse
+        average_loss = total_loss / len(train_loader.dataset)            
+        average_rmse = total_rmse / len(train_loader.dataset)
+
+        return average_loss, average_rmse
 
     def evaluate(model, loader):
         model.eval()
         total_loss = 0.0
         total_rmse = 0.0
+
+
         with torch.no_grad():
             for data in loader:
                 output = model(data)
                 loss = angular_dist_score(data.y, output)
+                #loss = loss_func(output, data.y)
                 total_loss += loss.item()
                 rmse = root_mean_squared_error(data.y, output).item()
                 total_rmse += rmse.item() if torch.is_tensor(rmse) else rmse
-        average_loss = total_loss / len(loader)
-        average_rmse = total_rmse / len(loader)
+        average_loss = total_loss / len(test_loader.dataset)
+        average_rmse = total_rmse / len(test_loader.dataset)
         return average_loss, average_rmse
     
     train_losses = []
@@ -570,9 +579,19 @@ def training_function(model, dataset_train, dataset_test):
     plt.ylabel("Loss")
     plt.legend()
     plt.show()
-    plt.savefig("test_graph.png")
+    plt.savefig("graph_loss_30_5_0_0001.png")
+    plt.close()
 
-
+    plt.figure(figsize=(10,5))
+    plt.title("Training and Validation RMSE")
+    plt.plot(test_rmses,label="val")
+    plt.plot(train_rmses,label="train")
+    plt.xlabel("iterations")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.show()
+    plt.savefig("graph_RMSE_30_5_0_0001.png")
+    plt.close()
 if __name__ == "__main__":
     data_path = "/scratchnvme/cicco/cmepda/"
     data_files = [
@@ -611,7 +630,6 @@ if __name__ == "__main__":
 
     print("creating the model")
 
-    model = model_creator()
 
     print("splitting the dataset")
     X_train, X_test, Y_train, Y_test = train_test_split(dataframe_final3, targets, test_size=0.3, random_state=None)
@@ -624,10 +642,17 @@ if __name__ == "__main__":
 
     print(X_train.iloc[0])
 
-    print("creating the tensors")
+    print("creating the training tensor")
 
-    data_train = tensor_creator(X_train, Y_train)
-    data_test = tensor_creator(X_test, Y_test)
+    data_train = tensor_creator(X_train, Y_train, 'train')
+
+    print("creating the test tensor")
+
+    data_test = tensor_creator(X_test, Y_test, 'test')
+    print("creating the model")
+
+    model = model_creator()
+
 
     print("starting the training")
 
