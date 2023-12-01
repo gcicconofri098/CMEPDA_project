@@ -146,7 +146,7 @@ def padding_function(df_with_geom):
 
     n_rows = np.sum(diff)
 
-    #take the array of event IDs 
+    #take the array of event IDs
     ev_ids = np.unique(df_with_geom.index.get_level_values(0).values)
 
     zeros = np.zeros((n_rows, 6), dtype=np.int32)
@@ -266,14 +266,15 @@ def model_creator():
                 nn.Linear(out_channels, out_channels),
             )
             self.simpler_mlp = nn.Sequential(
-                nn.Linear(in_channels, out_channels),
+                nn.Linear(out_channels, out_channels),
                 nn.ReLU(),
                 nn.Linear(out_channels, out_channels),
             )
 
         def forward(self, h, edge_index):
             h1 = self.propagate(edge_index, h=h)
-            return h1
+            h2 = self.simpler_mlp(h1)
+            return h2
 
         def message(self, h_j, h_i):
             #message that will be propagated in the forward function. It is made considering the EdgeConv idea
@@ -496,7 +497,8 @@ def tensor_creator(df, targets, label):
     #     temporal_distance = torch.abs(x[3] - y[3])  # Absolute temporal distance
     #     return (spatial_distance**2 + temporal_distance**2)**(1/2)
 
-    #loops on the events IDs, creating a Data object for each event, and consequently, a graph for each event
+    #loops on the events IDs, creates a Data object for each event(a graph for each event)
+
     for event_id in unique_events:
         # Extract hits for the current event
         event_data = df[df.index.get_level_values(0) == event_id].copy()
@@ -525,10 +527,10 @@ def tensor_creator(df, targets, label):
         # print("Node Features Shape:", data.x.shape)
         # print("Node Targets Shape:", data.y.shape)
 
-        nNeighbors = 5 #number of neighbors for each node 
+        n_neighbors = 6 #!number of neighbors for each node 
 
         #creates the edges for each node considering the KNN neighbors
-        data.edge_index = knn_graph(data.x, k=nNeighbors, loop=False)
+        data.edge_index = knn_graph(data.x, k=n_neighbors, loop=False)
 
         #prints some graphs if wanted
         if graph_drawer and event_id in sliced_unique_events:
@@ -566,6 +568,9 @@ def training_function(model, dataset_train, dataset_test):
     Returns:
         _type_: _description_
     """
+
+    debug = False
+
 
     class MyDataset(Dataset):
         """_summary_
@@ -635,8 +640,9 @@ def training_function(model, dataset_train, dataset_test):
             optimizer.zero_grad()
 
             output = model(data)
-            # loss = angular_dist_score(data.y, output)
+            #loss = angular_dist_score(data.y, output)
             loss = loss_func(output, data.y)
+            
             # print(type(loss))
             # if torch.isnan(loss).any:
             #     print(f"NaN in training loss at batch: {batch_idx}")
@@ -647,7 +653,7 @@ def training_function(model, dataset_train, dataset_test):
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
-            rmse = root_mean_squared_error(data.y, output).item()
+            total_rmse += root_mean_squared_error(data.y, output).item()
             # print(type(rmse))
             # if math.isnan(rmse):
             #     print(f"NaN in training RMSE at batch: {batch_idx}")
@@ -655,7 +661,6 @@ def training_function(model, dataset_train, dataset_test):
             #     print(f"Outputs: {output}")
             #     print(f"RMSE: {rmse}")
 
-            total_rmse += rmse.item() if torch.is_tensor(rmse) else rmse
 
             # batch_average_loss = total_loss / len(loader)
             # batch_average_rmse = total_rmse / len(loader)
@@ -664,12 +669,14 @@ def training_function(model, dataset_train, dataset_test):
             # print("average training rmse for each batch", rmse)
 
             batch_train_loss.append(loss.item())
-            batch_train_rmse.append(rmse)
+            batch_train_rmse.append(root_mean_squared_error(data.y, output).item())
 
         average_loss = total_loss / len(train_loader.dataset)
         average_rmse = total_rmse / len(train_loader.dataset)
-        return average_loss, average_rmse
-        # return batch_train_loss, batch_train_rmse
+        if debug:
+            return batch_train_loss, batch_train_rmse
+        else:
+            return average_loss, average_rmse
 
     def evaluate(model, loader):
         """_summary_
@@ -691,7 +698,7 @@ def training_function(model, dataset_train, dataset_test):
         with torch.no_grad():
             for batch_idx, data in enumerate(loader):
                 output = model(data)
-                # loss = angular_dist_score(data.y, output)
+                #loss = angular_dist_score(data.y, output)
 
                 # if torch.isnan(loss).any:
                 #     print(f"NaN in test loss at batch: {batch_idx}")
@@ -701,7 +708,7 @@ def training_function(model, dataset_train, dataset_test):
 
                 loss = loss_func(output, data.y)
                 total_loss += loss.item()
-                rmse = root_mean_squared_error(data.y, output).item()
+                total_rmse += root_mean_squared_error(data.y, output).item()
 
                 # if math.isnan(rmse):
                 #     print(f"NaN in test RMSE at batch: {batch_idx}")
@@ -709,7 +716,6 @@ def training_function(model, dataset_train, dataset_test):
                 #     print(f"Outputs: {output}")
                 #     print(f"RMSE: {rmse}")
 
-                total_rmse += rmse.item() if torch.is_tensor(rmse) else rmse
 
                 # batch_average_loss = total_loss / len(loader)
                 # batch_average_rmse = total_rmse / len(loader)
@@ -718,14 +724,15 @@ def training_function(model, dataset_train, dataset_test):
                 # print("average test rmse for each batch", rmse)
 
                 batch_test_loss.append(loss.item())
-                batch_test_rmse.append(rmse)
+                batch_test_rmse.append(root_mean_squared_error(data.y, output).item())
 
         average_loss = total_loss / len(test_loader.dataset)
         average_rmse = total_rmse / len(test_loader.dataset)
 
-        # return batch_test_loss, batch_test_rmse
-
-        return average_loss, average_rmse
+        if debug:
+            return batch_test_loss, batch_test_rmse
+        else:
+            return average_loss, average_rmse
 
     train_losses = []
     test_losses = []
@@ -733,14 +740,15 @@ def training_function(model, dataset_train, dataset_test):
     train_rmses = []
     test_rmses = []
 
-    for epoch in range(1, 101):
-        # train_loss, train_rmse = train(model, optimizer, train_loader)
-        # test_loss, test_rmse = evaluate(model, test_loader)
+    number_of_epochs = 2 if debug else 151
+
+    for epoch in range(1, number_of_epochs):
+
         train_loss, train_rmse = train(model, optimizer, train_loader)
         test_loss, test_rmse = evaluate(model, test_loader)
         #checks if either the loss function or the RMSE, both for training and validation, have NaN values,
         #and stops the training if so
-        if (
+        if not debug and (
             math.isnan(train_loss)
             or math.isnan(train_rmse)
             or math.isinf(train_loss)
@@ -758,35 +766,37 @@ def training_function(model, dataset_train, dataset_test):
 
         test_rmses.append(test_rmse)
         train_rmses.append(train_rmse)
-        print(
-            f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Train RMSE: {train_rmse:.4f}, Test RMSE: {test_rmse: .4f}"
-        )
-    #if debug is True, prints the plot of loss and RMSE batch per batch. It assumes that only one epoch is done
-    debug = False
+        if not debug:
+            print(
+                f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Train RMSE: {train_rmse:.4f}, Test RMSE: {test_rmse: .4f}"
+            )
+    #if debug is True, prints the plot of loss and RMSE batch per batch for epoch 1 only
 
     if debug:
         #! ONE EPOCH ONLY, BATCH PER BATCH
 
         plt.figure(figsize=(10, 5))
         plt.title("Training and Validation Loss")
-        plt.plot(batch_test_loss, label="val")
-        plt.plot(batch_train_loss, label="train")
+        plt.plot(test_loss, label="val")
+        plt.plot(train_loss, label="train")
         plt.xlabel("iterations")
         plt.ylabel("Loss")
+        plt.yscale('log')
         plt.legend()
         plt.show()
-        plt.savefig("graph_batch_mean_loss_30_0_0001.png")
+        plt.savefig("graph_log_batch_mean_loss_30_0_0001_loss_MSE.png")
         plt.close()
 
         plt.figure(figsize=(10, 5))
         plt.title("Training and Validation RMSE")
-        plt.plot(batch_test_rmse, label="val")
-        plt.plot(batch_train_rmse, label="train")
+        plt.plot(test_rmse, label="val")
+        plt.plot(train_rmse, label="train")
         plt.xlabel("iterations")
         plt.ylabel("RMSE")
+        plt.yscale('log')
         plt.legend()
         plt.show()
-        plt.savefig("graph_batch_mean_RMSE_30_0_0001.png")
+        plt.savefig("graph_log_batch_mean_RMSE_30_0_0001_loss_MSE.png")
         plt.close()
 
     else:
@@ -799,7 +809,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        plt.savefig("graph_mean_4_DNN_loss_30_0_0001_loss_MSE.png")
+        plt.savefig("graph_mean_150_epochs_4_DNN_loss_30_0_0001_loss_MSE_simpler_mlp_knn_6.png")
         plt.close()
 
         plt.figure(figsize=(10, 5))
@@ -810,13 +820,14 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        plt.savefig("graph_mean_4_DNN_RMSE_30_0_0001_loss_MSE.png")
+        plt.savefig("graph_mean_150_epochs_4_DNN_RMSE_30_0_0001_loss_MSE_simpler_mlp_knn_6.png")
         plt.close()
 
 
 if __name__ == "__main__":
-    data_path = "/scratchnvme/cicco/cmepda/"
-    data_files = [
+
+    DATA_PATH = "/scratchnvme/cicco/cmepda/"
+    DATA_FILES = [
         "batch_1.parquet",
         # "batch_2.parquet",
         # "batch_10.parquet",
@@ -828,8 +839,8 @@ if __name__ == "__main__":
     combined_data = pd.DataFrame()
     combined_res = pd.DataFrame()
 
-    for data_file in data_files:
-        dataframe = pd.read_parquet(data_path + data_file).reset_index()
+    for data_file in DATA_FILES:
+        dataframe = pd.read_parquet(DATA_PATH + data_file).reset_index()
         dataframe_final = dataset_skimmer(dataframe, geometry)
 
         dataframe_final1 = padding_function(dataframe_final)
@@ -847,7 +858,7 @@ if __name__ == "__main__":
     print("splitting the dataset")
     #splits the dataset into training and test 
     X_train, X_test, Y_train, Y_test = train_test_split(
-        dataframe_final3, targets, test_size=0.3, random_state=None
+        dataframe_final3, targets, test_size=0.3, random_state=42
     )
 
     print(X_train)
