@@ -13,12 +13,14 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import logging
 
-torch.set_num_threads(10)
+torch.set_num_threads(20)
 
+#pylint:disable = invalid-name
 
 def angular_dist_score(y_true, y_pred):
-    """_summary_
+    """
     calculate the MAE of the angular distance between two directions.
     The two vectors are first converted to cartesian unit vectors,
     and then their scalar product is computed, which is equal to
@@ -81,7 +83,7 @@ def angular_dist_score(y_true, y_pred):
 
 
 def dataset_skimmer(df, geom):
-    """_summary_
+    """
     Prepares the dataset for padding operation.
 
     Args:
@@ -113,18 +115,18 @@ def dataset_skimmer(df, geom):
                                 .drop_duplicates(["event_id", "sensor_id"])
                             )  # keep the sorting on the charge
 
-    # add a counter of hits per event, and drops hits after the 15th one
+    # add a counter of hits per event, and drops hits after the 20th one
 
     df_with_geom2["n_counter"] = df_with_geom2.groupby("event_id").cumcount()
 
-    df_with_geom2 = df_with_geom2[df_with_geom2.n_counter < 15]
+    df_with_geom2 = df_with_geom2[df_with_geom2.n_counter < 20]
     
     print(df_with_geom2)
 
     return df_with_geom2
 
 def padding_function(df_with_geom):
-    """_summary_
+    """
     adds a 0 padding to take into account the different number of hits per event
 
     Args:
@@ -138,7 +140,7 @@ def padding_function(df_with_geom):
 
     # find the number of rows to be added during the padding
 
-    n_counter_1 = np.where(maxima > 14, maxima, 14)
+    n_counter_1 = np.where(maxima > 19, maxima, 19)
     diff = np.array([n_counter_1 - maxima])
 
     #set a multi-index on the dataframe
@@ -181,7 +183,7 @@ def padding_function(df_with_geom):
     df_final = df_final.sort_index()
     df_final = df_final.reset_index(drop=False)
 
-    # create a new index that counts all the hits in an event and drops the old counter and the sensor id
+    #creates a new index that counts all the hits in an event and drops unnecessary columns
 
     df_final["counter"] = df_final.groupby("event_id").cumcount()
 
@@ -193,7 +195,7 @@ def padding_function(df_with_geom):
     return df_final
 
 def targets_definer(df_final):
-    """_summary_
+    """
         creates a dataframe that contains the targets for each event
     Args:
         df_final (pandas Dataframe): feature dataframe from which the event IDs are taken
@@ -203,7 +205,8 @@ def targets_definer(df_final):
     """
     res = pd.read_parquet("/scratchnvme/cicco/cmepda/train_meta.parquet")
 
-    # because the dataset contains information on all the datasets, targets for the events considered need to be extracted
+    #the dataset contains information on all the datasets, 
+    # so targets for the events considered need to be extracted
 
     # gets the list of event IDs
 
@@ -213,6 +216,7 @@ def targets_definer(df_final):
     res1 = res[res.event_id.isin(events)]
 
     res1 = res1.sort_index()
+
     #drops unnecessary columns
     res1 = res1.drop(
         labels=["first_pulse_index", "last_pulse_index", "batch_id"], axis=1
@@ -222,7 +226,7 @@ def targets_definer(df_final):
 
 
 def unstacker(df_final):
-    """_summary_
+    """
     Creates a dataframe where each row contains one event
     Args:
         df_final (pandas Dataframe): dataframe containing one hit per row
@@ -241,7 +245,7 @@ def unstacker(df_final):
 
 
 def model_creator():
-    """_summary_
+    """
     creates the model for the neural network
 
     Returns:
@@ -249,7 +253,7 @@ def model_creator():
     """
 
     class DNNLayer(MessagePassing):
-        """_summary_
+        """
         custom layer for the Graph Neural Network (GNN) that inherits from the Message Passing layer
         Args:
             MessagePassing (_type_): layer for GNN
@@ -282,7 +286,7 @@ def model_creator():
             return self.mlp(input)
 
     class Graph_Network(nn.Module):
-        """_summary_
+        """
         Creates the effective GNN
         Args:
             nn (_type_): _description_
@@ -301,7 +305,7 @@ def model_creator():
             self.output = nn.Linear(N_features, 2)
 
         def forward(self, data):
-            """_summary_
+            """
             assembles the GNN
             Args:
                 data (Dataset): dataset that contains both the features and the targets
@@ -351,7 +355,7 @@ def model_creator():
 
 
 def tensor_creator(df, targets, label):
-    """_summary_
+    """
     Takes the pandas Dataframes and creates the torch Tensor for the GNN
     Args:
         df (pandas Dataframe): dataframe with the features
@@ -359,7 +363,7 @@ def tensor_creator(df, targets, label):
         label (str): string that differentiates training and test samples for debugging
     """
     def graph_visualisation(data):
-        """_summary_
+        """
         plots the graphs on the xy plane and yz plane.
         Args:
             data (torch tensor): torch tensor with both targets and features
@@ -558,7 +562,7 @@ def tensor_creator(df, targets, label):
 
 
 def training_function(model, dataset_train, dataset_test):
-    """_summary_
+    """
     Trains the GNN
     Args:
         model (_type_): Model defined for the GNN
@@ -573,7 +577,7 @@ def training_function(model, dataset_train, dataset_test):
 
 
     class MyDataset(Dataset):
-        """_summary_
+        """
         Custom Dataset for handling the data
         Args:
             Dataset (Dataset): _description_
@@ -589,7 +593,7 @@ def training_function(model, dataset_train, dataset_test):
             return data
 
     def root_mean_squared_error(y_true, y_pred):
-        """_summary_
+        """
         Definition of RMSE
         Args:
             y_true (torch.tensor): truth values for azimuth and zenith
@@ -618,7 +622,7 @@ def training_function(model, dataset_train, dataset_test):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
     def train(model, optimizer, loader):
-        """_summary_
+        """
         Train function
         Args:
             model (_type_): _description_
@@ -679,7 +683,7 @@ def training_function(model, dataset_train, dataset_test):
             return average_loss, average_rmse
 
     def evaluate(model, loader):
-        """_summary_
+        """
         Function for validation
         Args:
             model (_type_): _description_
@@ -740,7 +744,7 @@ def training_function(model, dataset_train, dataset_test):
     train_rmses = []
     test_rmses = []
 
-    number_of_epochs = 2 if debug else 151
+    number_of_epochs = 2 if debug else 201
 
     for epoch in range(1, number_of_epochs):
 
@@ -749,7 +753,7 @@ def training_function(model, dataset_train, dataset_test):
         #checks if either the loss function or the RMSE, both for training and validation, have NaN values,
         #and stops the training if so
         if not debug and (
-            math.isnan(train_loss)
+               math.isnan(train_loss)
             or math.isnan(train_rmse)
             or math.isinf(train_loss)
             or math.isinf(train_rmse)
@@ -809,7 +813,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        plt.savefig("graph_mean_150_epochs_4_DNN_loss_30_0_0001_loss_MSE_simpler_mlp_knn_6.png")
+        plt.savefig("graph_mean_200_epochs_20_hits_4_DNN_loss_30_0_0001_loss_MSE_simpler_mlp_knn_6.png")
         plt.close()
 
         plt.figure(figsize=(10, 5))
@@ -820,7 +824,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        plt.savefig("graph_mean_150_epochs_4_DNN_RMSE_30_0_0001_loss_MSE_simpler_mlp_knn_6.png")
+        plt.savefig("graph_mean_200_epochs_20_hits_4_DNN_RMSE_30_0_0001_loss_MSE_simpler_mlp_knn_6.png")
         plt.close()
 
 
