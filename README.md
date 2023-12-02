@@ -1,3 +1,7 @@
+<a href='https://icecube-for-cmepda-project.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/icecube-for-cmepda-project/badge/?version=latest' alt='Documentation Status' />
+</a>
+
 # CMEPDA_project
 Repository for the project for the CMEPDA exam. The project consists of studying the IceCube experiment Monte Carlo simulations, particularly on predicting the original trajectory of the simulated particles using Machine Learning (ML) techniques.
 
@@ -14,3 +18,7 @@ The dataset was taken from the Kaggle competition:
 IceCube - Neutrinos in Deep Ice (https://www.kaggle.com/competitions/icecube-neutrinos-in-deep-ice/overview),
 
 and consists of a number of events that record the hits inside the detectors and relative information.
+
+# Documentation
+
+The documentation can be found at the following link (work in progress): http://icecube-for-cmepda-project.readthedocs.io/
