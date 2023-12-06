@@ -299,6 +299,7 @@ def model_creator():
             self.f2 = DNNLayer(N_features, N_features)
             self.f3 = DNNLayer(N_features, N_features)
             self.f4 = DNNLayer(N_features, N_features)
+            self.f5 = DNNLayer(N_features, N_features)
 
             self.global_pooling = torch_geometric.nn.global_mean_pool
 
@@ -338,6 +339,11 @@ def model_creator():
             h = self.f4(h=h, edge_index= edge_index)
 
             h = h.relu()
+
+            h = self.f5(h=h, edge_index= edge_index)
+
+            h = h.relu()
+
 
             h = self.global_pooling(h, data.batch)
 
@@ -503,7 +509,7 @@ def tensor_creator(df, targets, label):
 
     #loops on the events IDs, creates a Data object for each event(a graph for each event)
 
-    for event_id in unique_events:
+    for idx, event_id in enumerate(unique_events):
         # Extract hits for the current event
         event_data = df[df.index.get_level_values(0) == event_id].copy()
         event_targets = targets[targets["event_id"] == event_id].copy()
@@ -530,8 +536,8 @@ def tensor_creator(df, targets, label):
         )
         # Add the Data object to the list
         data_list.append(data)
-
-        print(f"Event ID: {event_id}")
+        if(idx % 100 == 0):
+            print(f"processin event number: {idx}")
         # print("Node Features Shape:", data.x.shape)
         # print("Node Targets Shape:", data.y.shape)
 
@@ -819,7 +825,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        plt.savefig("graph_mean_170_epochs_20_hits_4_DNN_loss_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
+        plt.savefig("graph_mean_170_epochs_20_hits_5_DNN_loss_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
         plt.close()
 
         plt.figure(figsize=(10, 5))
@@ -830,7 +836,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        plt.savefig("graph_mean_170_epochs_20_hits_4_DNN_RMSE_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
+        plt.savefig("graph_mean_170_epochs_20_hits_5_DNN_RMSE_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
         plt.close()
 
 
