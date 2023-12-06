@@ -1,5 +1,5 @@
-<a href='https://icecube-for-cmepda-project.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/icecube-for-cmepda-project/badge/?version=latest' alt='Documentation Status' />
+<a href='https://neutrinos-icecube.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/neutrinos-icecube/badge/?version=latest' alt='Documentation Status' />
 </a>
 
 # CMEPDA_project
