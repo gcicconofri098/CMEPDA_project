@@ -1,4 +1,3 @@
-import sys
 import math
 import pandas as pd
 import torch
@@ -79,7 +78,7 @@ def angular_dist_score(y_true, y_pred):
     scalar_prod = torch.clamp(scalar_prod, -1.0, 1.0)
 
     # Convert back to an angle (in radians)
-    return torch.mean(torch.abs(torch.acos(scalar_prod)))
+    return (torch.abs(torch.acos(scalar_prod)))
 
 
 def dataset_skimmer(df, geom):
@@ -115,19 +114,19 @@ def dataset_skimmer(df, geom):
                                 .drop_duplicates(["event_id", "sensor_id"])
                             )  # keep the sorting on the charge
 
-    # add a counter of hits per event, and drops hits after the 20th one
+    # add a counter of hits per event, and drops hits after the 25th one
 
     df_with_geom2["n_counter"] = df_with_geom2.groupby("event_id").cumcount()
 
     df_with_geom2 = df_with_geom2[df_with_geom2.n_counter < 20]
     
-    print(df_with_geom2)
+    #print(df_with_geom2)
 
     return df_with_geom2
 
 def padding_function(df_with_geom):
     """
-    adds a 0 padding to take into account the different number of hits per event
+    adds a zero-padding to take into account the different number of hits per event
 
     Args:
         df_with_geom (pandas Dataframe): dataframe with feature information
@@ -191,7 +190,7 @@ def padding_function(df_with_geom):
 
     #drops unnecessary columns
     df_final = df_final.drop(labels=["n_counter", "sensor_id"], axis=1)
-
+    print(df_final)
     return df_final
 
 def targets_definer(df_final):
@@ -221,7 +220,8 @@ def targets_definer(df_final):
     res1 = res1.drop(
         labels=["first_pulse_index", "last_pulse_index", "batch_id"], axis=1
     )
-
+    print("printing targets")
+    print(res1)
     return res1
 
 
@@ -503,7 +503,7 @@ def tensor_creator(df, targets, label):
 
     #loops on the events IDs, creates a Data object for each event(a graph for each event)
 
-    for event_id in unique_events:
+    for event_id in sliced_unique_events:
         # Extract hits for the current event
         event_data = df[df.index.get_level_values(0) == event_id].copy()
         event_targets = targets[targets["event_id"] == event_id].copy()
@@ -520,6 +520,10 @@ def tensor_creator(df, targets, label):
 
         #creates the Data object
 
+        print("print shape of x and y to be put in Data")
+        print(torch.Tensor(node_features.values.reshape(5, -1).T).shape)
+        print(torch.Tensor(node_targets.values).reshape(-1, 2).shape)
+
         data = Data(
             x=torch.Tensor(node_features.values.reshape(5, -1).T),
             y=torch.Tensor(node_targets.values).reshape(-1, 2),
@@ -531,7 +535,7 @@ def tensor_creator(df, targets, label):
         # print("Node Features Shape:", data.x.shape)
         # print("Node Targets Shape:", data.y.shape)
 
-        n_neighbors = 6 #!number of neighbors for each node 
+        n_neighbors = 7 #!number of neighbors for each node 
 
         #creates the edges for each node considering the KNN neighbors
         data.edge_index = knn_graph(data.x, k=n_neighbors, loop=False)
@@ -612,14 +616,14 @@ def training_function(model, dataset_train, dataset_test):
 
     loss_func = torch.nn.MSELoss()
 
-    train_loader = DataLoader(custom_dataset_train, batch_size=128, shuffle=True)
-    test_loader = DataLoader(custom_dataset_test, batch_size=128, shuffle=True)
+    train_loader = DataLoader(custom_dataset_train, batch_size=256, shuffle=True)
+    test_loader = DataLoader(custom_dataset_test, batch_size=256, shuffle=True)
 
     # for batch in train_loader:
     # print(type(batch))
     # print(batch.batch)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     def train(model, optimizer, loader):
         """
@@ -714,6 +718,8 @@ def training_function(model, dataset_train, dataset_test):
                 total_loss += loss.item()
                 total_rmse += root_mean_squared_error(data.y, output).item()
 
+
+
                 # if math.isnan(rmse):
                 #     print(f"NaN in test RMSE at batch: {batch_idx}")
                 #     print(f"Input is: {data}")
@@ -744,7 +750,7 @@ def training_function(model, dataset_train, dataset_test):
     train_rmses = []
     test_rmses = []
 
-    number_of_epochs = 2 if debug else 201
+    number_of_epochs = 2 if debug else 171
 
     for epoch in range(1, number_of_epochs):
 
@@ -813,7 +819,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        plt.savefig("graph_mean_200_epochs_20_hits_4_DNN_loss_30_0_0001_loss_MSE_simpler_mlp_knn_6.png")
+        #plt.savefig("graph_mean_170_epochs_20_hits_4_DNN_loss_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
         plt.close()
 
         plt.figure(figsize=(10, 5))
@@ -824,7 +830,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        plt.savefig("graph_mean_200_epochs_20_hits_4_DNN_RMSE_30_0_0001_loss_MSE_simpler_mlp_knn_6.png")
+        #plt.savefig("graph_mean_170_epochs_20_hits_4_DNN_RMSE_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
         plt.close()
 
 
@@ -833,7 +839,7 @@ if __name__ == "__main__":
     DATA_PATH = "/scratchnvme/cicco/cmepda/"
     DATA_FILES = [
         "batch_1.parquet",
-        # "batch_2.parquet",
+        "batch_2.parquet",
         # "batch_10.parquet",
         # "batch_11.parquet",
         # "batch_100.parquet",
@@ -856,16 +862,23 @@ if __name__ == "__main__":
         dataframe_final3 = unstacker(dataframe_final1)
         print(dataframe_final3)
 
+        combined_data = pd.concat([combined_data, dataframe_final3], ignore_index=False)
+
+        combined_res = pd.concat([combined_res, targets], ignore_index=False)
+
+    print("combined data",combined_data)
+    print(combined_res)
 
     print("creating the model")
 
     print("splitting the dataset")
     #splits the dataset into training and test 
     X_train, X_test, Y_train, Y_test = train_test_split(
-        dataframe_final3, targets, test_size=0.3, random_state=42
+        combined_data, combined_res, test_size=0.3, random_state=42
     )
 
-    print(X_train)
+    print(X_train.shape)
+    print(Y_train.shape)
 
     print("creating the training tensor")
 
