@@ -2,7 +2,6 @@ import torch
 import torch_geometric
 import torch.nn as nn
 from torch_geometric.nn import MessagePassing
-from torch_cluster import knn_graph
 import matplotlib.pyplot as plt
 import networkx as nx
 

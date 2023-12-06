@@ -8,3 +8,4 @@ CMEPDA
    neutrinos_icecube
    script
    subset
+   tests

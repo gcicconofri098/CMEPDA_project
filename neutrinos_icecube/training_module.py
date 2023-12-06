@@ -2,12 +2,10 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
 import torch_geometric
-from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
-import matplotlib.pyplot as plt
+import math
 
-
-def training_function(model, dataset_train, dataset_test):
+def training_function(model, dataset_train, dataset_test, debug):
     """
     Trains the GNN
     Args:
@@ -18,9 +16,6 @@ def training_function(model, dataset_train, dataset_test):
     Returns:
         _type_: _description_
     """
-
-    debug = False
-
 
     class MyDataset(Dataset):
         """
@@ -200,7 +195,7 @@ def training_function(model, dataset_train, dataset_test):
         test_loss, test_rmse = evaluate(model, test_loader)
         #checks if either the loss function or the RMSE, both for training and validation, have NaN values,
         #and stops the training if so
-        if not debug and (
+        if (
                math.isnan(train_loss)
             or math.isnan(train_rmse)
             or math.isinf(train_loss)
@@ -218,8 +213,9 @@ def training_function(model, dataset_train, dataset_test):
 
         test_rmses.append(test_rmse)
         train_rmses.append(train_rmse)
-        if not debug:
-            print(
+
+        print(
                 f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Train RMSE: {train_rmse:.4f}, Test RMSE: {test_rmse: .4f}"
             )
-    #if debug is True, prints the plot of loss and RMSE batch per batch for epoch 1 only
+        return train_losses, test_losses, train_rmses, test_rmses
+
