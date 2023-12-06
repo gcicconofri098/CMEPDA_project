@@ -503,7 +503,7 @@ def tensor_creator(df, targets, label):
 
     #loops on the events IDs, creates a Data object for each event(a graph for each event)
 
-    for event_id in sliced_unique_events:
+    for event_id in unique_events:
         # Extract hits for the current event
         event_data = df[df.index.get_level_values(0) == event_id].copy()
         event_targets = targets[targets["event_id"] == event_id].copy()
@@ -520,9 +520,9 @@ def tensor_creator(df, targets, label):
 
         #creates the Data object
 
-        print("print shape of x and y to be put in Data")
-        print(torch.Tensor(node_features.values.reshape(5, -1).T).shape)
-        print(torch.Tensor(node_targets.values).reshape(-1, 2).shape)
+        # print("print shape of x and y to be put in Data")
+        # print(torch.Tensor(node_features.values.reshape(5, -1).T).shape)
+        # print(torch.Tensor(node_targets.values).reshape(-1, 2).shape)
 
         data = Data(
             x=torch.Tensor(node_features.values.reshape(5, -1).T),
@@ -819,7 +819,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        #plt.savefig("graph_mean_170_epochs_20_hits_4_DNN_loss_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
+        plt.savefig("graph_mean_170_epochs_20_hits_4_DNN_loss_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
         plt.close()
 
         plt.figure(figsize=(10, 5))
@@ -830,7 +830,7 @@ def training_function(model, dataset_train, dataset_test):
         plt.ylabel("Loss")
         plt.legend()
         plt.show()
-        #plt.savefig("graph_mean_170_epochs_20_hits_4_DNN_RMSE_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
+        plt.savefig("graph_mean_170_epochs_20_hits_4_DNN_RMSE_30_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
         plt.close()
 
 
