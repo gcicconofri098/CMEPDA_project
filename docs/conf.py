@@ -16,7 +16,7 @@ package_root = os.path.abspath('..')
 package_name = 'neutrinos_icecube'
 
 sys.path.insert(0, package_root)
-sys.path.insert(0, os.path.join(package_root, package_name))
+#sys.path.insert(0, os.path.join(package_root, package_name))
 
 
 # -- Project information -----------------------------------------------------
@@ -29,7 +29,7 @@ author = 'Gloria Cicconofri'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc"]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -39,5 +39,5 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
