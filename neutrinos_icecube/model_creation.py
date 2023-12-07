@@ -4,7 +4,11 @@ import torch.nn as nn
 from torch_geometric.nn import MessagePassing
 import matplotlib.pyplot as plt
 import networkx as nx
+import logging
 
+import parameters as parameters
+
+logging.basicConfig(filename='model_log.log', level= parameters.log_value)
 
 def model_creator():
     """
@@ -78,42 +82,48 @@ def model_creator():
             """
             x = data.x
             edge_index = data.edge_index
-            # print("shape before f1",x.shape)
+            logging.debug(f"shape before f1: {x.shape}")
 
             h = self.f1(h=x, edge_index=edge_index)
-            # print("shape after f1",h.shape)
+            logging.debug(f"shape after f1: {h.shape}")
+
 
             h = h.relu()
-            # print("shape after relu",h.shape)
+            logging.debug(f"shape after relu1: {h.shape}")
 
             h = self.f2(h=h, edge_index=edge_index)
-            # print("shape after f2",h.shape)
+            logging.debug(f"shape after f2: {h.shape}")
 
             h = h.relu()
-            # print("shape after relu",h.shape)
+            logging.debug(f"shape after relu2: {h.shape}")
 
             h = self.f3(h=h, edge_index=edge_index)
-            # print("shape after f3",h.shape)
+            logging.debug(f"shape after f3: {h.shape}")
 
             h = h.relu()
-            # print("shape after relu",h.shape)
+            logging.debug(f"shape after relu3: {h.shape}")
 
             h = self.f4(h=h, edge_index= edge_index)
+            logging.debug(f"shape after f4: {h.shape}")
 
             h = h.relu()
+            logging.debug(f"shape after relu4: {h.shape}")
+
 
             h = self.f5(h=h, edge_index= edge_index)
+            logging.debug(f"shape after f5: {h.shape}")
 
             h = h.relu()
+            logging.debug(f"shape after relu5: {h.shape}")
 
 
             h = self.global_pooling(h, data.batch)
 
-            # print("shape after global pooling", h.shape)
+            logging.debug(f"shape after global pooling: {h.shape}")
 
             h = self.output(h)
 
-            # print("shape after linear layer", h.shape)
+            logging.debug(f"output shape: {h.shape}")
             return h
 
     Model = Graph_Network()

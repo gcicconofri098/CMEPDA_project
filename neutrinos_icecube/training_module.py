@@ -1,11 +1,21 @@
+import sys
+import math
+import logging
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
 import torch_geometric
 from torch_geometric.loader import DataLoader
-import math
 
-def training_function(model, dataset_train, dataset_test, debug):
+from angular_distance_loss import angular_dist_score
+
+import parameters
+
+logging.basicConfig(filename='training_log.log', level= parameters.log_value)
+logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
+
+def training_function(model, dataset_train, dataset_test):
     """
     Trains the GNN
     Args:
@@ -73,6 +83,7 @@ def training_function(model, dataset_train, dataset_test, debug):
         Returns:
             _type_: _description_
         """
+        logging.debug(len(loader))
         model.train()
         total_loss = 0
         total_rmse = 0
@@ -85,9 +96,10 @@ def training_function(model, dataset_train, dataset_test, debug):
             optimizer.zero_grad()
 
             output = model(data)
-            #loss = angular_dist_score(data.y, output)
-            loss = loss_func(output, data.y)
-            
+
+            loss = angular_dist_score(data.y, output)
+            #loss = loss_func(output, data.y)
+            loss_tensor = torch.tensor(loss, requires_grad=True)
             # print(type(loss))
             # if torch.isnan(loss).any:
             #     print(f"NaN in training loss at batch: {batch_idx}")
@@ -95,9 +107,9 @@ def training_function(model, dataset_train, dataset_test, debug):
             #     print(f"Outputs: {output}")
             #     print(f'Loss tensor: {loss}')
 
-            loss.backward()
+            loss_tensor.backward()
             optimizer.step()
-            total_loss += loss.item()
+            total_loss += loss_tensor.item()
             total_rmse += root_mean_squared_error(data.y, output).item()
             # print(type(rmse))
             # if math.isnan(rmse):
@@ -116,9 +128,9 @@ def training_function(model, dataset_train, dataset_test, debug):
             batch_train_loss.append(loss.item())
             batch_train_rmse.append(root_mean_squared_error(data.y, output).item())
 
-        average_loss = total_loss / len(train_loader.dataset)
-        average_rmse = total_rmse / len(train_loader.dataset)
-        if debug:
+        average_loss = total_loss / len(loader)
+        average_rmse = total_rmse / len(loader)
+        if parameters.debug_value:
             return batch_train_loss, batch_train_rmse
         else:
             return average_loss, average_rmse
@@ -140,10 +152,12 @@ def training_function(model, dataset_train, dataset_test, debug):
         batch_test_loss = []
         batch_test_rmse = []
 
+        logging.debug(len(loader))
+
         with torch.no_grad():
             for batch_idx, data in enumerate(loader):
                 output = model(data)
-                #loss = angular_dist_score(data.y, output)
+                loss = angular_dist_score(data.y, output)
 
                 # if torch.isnan(loss).any:
                 #     print(f"NaN in test loss at batch: {batch_idx}")
@@ -151,7 +165,7 @@ def training_function(model, dataset_train, dataset_test, debug):
                 #     print(f"Outputs: {output}")
                 #     print(f'Loss tensor: {loss}')
 
-                loss = loss_func(output, data.y)
+                #loss = loss_func(output, data.y)
                 total_loss += loss.item()
                 total_rmse += root_mean_squared_error(data.y, output).item()
 
@@ -173,10 +187,10 @@ def training_function(model, dataset_train, dataset_test, debug):
                 batch_test_loss.append(loss.item())
                 batch_test_rmse.append(root_mean_squared_error(data.y, output).item())
 
-        average_loss = total_loss / len(test_loader.dataset)
-        average_rmse = total_rmse / len(test_loader.dataset)
+        average_loss = total_loss / len(loader)
+        average_rmse = total_rmse / len(loader)
 
-        if debug:
+        if parameters.debug_value:
             return batch_test_loss, batch_test_rmse
         else:
             return average_loss, average_rmse
@@ -187,7 +201,7 @@ def training_function(model, dataset_train, dataset_test, debug):
     train_rmses = []
     test_rmses = []
 
-    number_of_epochs = 2 if debug else 171
+    number_of_epochs = 2 if parameters.debug_value else 171
 
     for epoch in range(1, number_of_epochs):
 
@@ -214,8 +228,8 @@ def training_function(model, dataset_train, dataset_test, debug):
         test_rmses.append(test_rmse)
         train_rmses.append(train_rmse)
 
-        print(
+        logging.info(
                 f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Train RMSE: {train_rmse:.4f}, Test RMSE: {test_rmse: .4f}"
             )
-        return train_losses, test_losses, train_rmses, test_rmses
+    return train_losses, test_losses, train_rmses, test_rmses
 

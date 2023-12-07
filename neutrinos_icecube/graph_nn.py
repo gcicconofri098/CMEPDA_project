@@ -1,4 +1,5 @@
 import math
+import logging
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -11,19 +12,22 @@ from torch_cluster import knn_graph
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
-import logging
 
-from neutrinos_icecube.angular_distance_loss import angular_dist_score
-from neutrinos_icecube.pandas_handler import dataset_skimmer, padding_function, unstacker
-from neutrinos_icecube.targets_handler import targets_definer
-from neutrinos_icecube.model_creation import model_creator
-from neutrinos_icecube.tensor_creation import tensor_creator
-from neutrinos_icecube.training_module import training_function
+from angular_distance_loss import angular_dist_score
+from pandas_handler import dataset_skimmer, padding_function, unstacker
+from targets_handler import targets_definer
+from model_creation import model_creator
+from tensor_creation import tensor_creator
+from training_module import training_function
 from plots.plots_loss_and_rmse import single_batch_loss_plots, loss_plots
+import parameters as parameters
+
+
+logging.basicConfig(filename='logging.log', level= parameters.log_value)
+
 
 torch.set_num_threads(20)
 
-debug = False
 
 #pylint:disable = invalid-name
 
@@ -50,17 +54,17 @@ if __name__ == "__main__":
 
         targets = targets_definer(dataframe_final1)
 
-        print("unstacking")
+        logging.info("unstacking")
 
         dataframe_final3 = unstacker(dataframe_final1)
-        print(dataframe_final3)
+        logging.debug(dataframe_final3)
 
         combined_data = pd.concat([combined_data, dataframe_final3], ignore_index=False)
 
         combined_res = pd.concat([combined_res, targets], ignore_index=False)
 
-    print("combined data",combined_data)
-    print(combined_res)
+    logging.debug(combined_data)
+    logging.debug(combined_res)
 
     print("creating the model")
 
@@ -86,9 +90,9 @@ if __name__ == "__main__":
 
     print("starting the training")
 
-    train_losses, test_losses, train_rmses, test_rmses = training_function(model, data_train, data_test, debug)
+    train_losses, test_losses, train_rmses, test_rmses = training_function(model, data_train, data_test)
 
-    if not debug:
+    if not parameters.debug_value:
         loss_plots(train_losses, test_losses, train_rmses, test_rmses)
     else:
         single_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses)

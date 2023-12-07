@@ -1,5 +1,8 @@
 import torch
+import numpy as np
+import logging
 
+logging.basicConfig(filename='custom_loss.log', level= logging.INFO)
 
 def angular_dist_score(y_true, y_pred):
     """
@@ -17,49 +20,43 @@ def angular_dist_score(y_true, y_pred):
         _type_: _description_
     """
 
-    # print(y_true.shape)
-    # print(y_pred.shape)
-    az_pred = y_pred[:, 0]
-    az_true = y_true[:, 0]
-    zen_true = y_true[:, 1]
-    zen_pred = y_pred[:, 1]
 
-    # print(az_pred.shape)
-    # print(az_true.shape)
-    # print(zen_pred.shape)
-    # print(zen_true.shape)
+    logging.debug(y_true.shape)
+    logging.debug(y_pred.shape)
+    az_pred = y_pred[:, 0].clone().detach().numpy() #using torch.clone() and then torch.detach() to have 
+    az_true = y_true[:, 0].numpy()
+    zen_true = y_true[:, 1].numpy()
+    zen_pred = y_pred[:, 1].clone().detach().numpy()
 
-    # Combine non-finite masks for all input tensors
-    non_finite_mask = (
-        ~torch.isfinite(az_true)
-        | ~torch.isfinite(zen_true)
-        | ~torch.isfinite(az_pred)
-        | ~torch.isfinite(zen_pred)
-    )
+    logging.debug(az_pred.shape)
+    logging.debug(az_true.shape)
+    logging.debug(zen_pred.shape)
+    logging.debug(zen_true.shape)
 
-    # Apply the mask to filter out non-finite values
-    az_true = az_true[~non_finite_mask]
-    zen_true = zen_true[~non_finite_mask]
-    az_pred = az_pred[~non_finite_mask]
-    zen_pred = zen_pred[~non_finite_mask]
 
-    # Pre-compute all sine and cosine values
-    sa1 = torch.sin(az_true)
-    ca1 = torch.cos(az_true)
-    sz1 = torch.sin(zen_true)
-    cz1 = torch.cos(zen_true)
-    sa2 = torch.sin(az_pred)
-    ca2 = torch.cos(az_pred)
-    sz2 = torch.sin(zen_pred)
-    cz2 = torch.cos(zen_pred)
-
-    # Scalar product of the two cartesian vectors (x = sz*ca, y = sz*sa, z = cz)
-    scalar_prod = sz1 * sz2 * (ca1 * ca2 + sa1 * sa2) + (cz1 * cz2)
-
-    # Scalar product of two unit vectors is always between -1 and 1
-    # Clip to avoid numerical instability
-    scalar_prod = torch.clamp(scalar_prod, -1.0, 1.0)
-
-    # Convert back to an angle (in radians)
-    return (torch.abs(torch.acos(scalar_prod)))
-
+    if not (np.all(np.isfinite(az_true)) and
+            np.all(np.isfinite(zen_true)) and
+            np.all(np.isfinite(az_pred)) and
+            np.all(np.isfinite(zen_pred))):
+        raise ValueError("All arguments must be finite")
+    
+    # pre-compute all sine and cosine values
+    sa1 = np.sin(az_true)
+    ca1 = np.cos(az_true)
+    sz1 = np.sin(zen_true)
+    cz1 = np.cos(zen_true)
+    
+    sa2 = np.sin(az_pred)
+    ca2 = np.cos(az_pred)
+    sz2 = np.sin(zen_pred)
+    cz2 = np.cos(zen_pred)
+    
+    # scalar product of the two cartesian vectors (x = sz*ca, y = sz*sa, z = cz)
+    scalar_prod = sz1*sz2*(ca1*ca2 + sa1*sa2) + (cz1*cz2)
+    
+    # scalar product of two unit vectors is always between -1 and 1, this is against nummerical instability
+    # that might otherwise occure from the finite precision of the sine and cosine functions
+    scalar_prod =  np.clip(scalar_prod, -1, 1)
+    
+    # convert back to an angle (in radian)
+    return np.average(np.abs(np.arccos(scalar_prod)))

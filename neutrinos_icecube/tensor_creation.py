@@ -1,11 +1,13 @@
 import pandas as pd
+import logging
 import torch
 import torch_geometric
 from torch_cluster import knn_graph
 from torch_geometric.data import Data
+import parameters as parameters
+from graph_visualizer import graph_visualisation
 
-from neutrinos_icecube.graph_visualizer import graph_visualisation
-
+logging.basicConfig(filename='logging.log', level= parameters.log_value)
 
 def tensor_creator(df, targets, label):
     """
@@ -16,25 +18,22 @@ def tensor_creator(df, targets, label):
         label (str): string that differentiates training and test samples for debugging
     """
 
-
-    graph_drawer = False #flag that enables the graph visualisation function
-
     #takes the names of the events 
     unique_events = pd.unique(df.index.get_level_values(0))
 
-    sliced_unique_events = unique_events[:3] #subset of events for debugging
-    # print(sliced_unique_events)
+    sliced_unique_events = unique_events[:1000] #subset of events for debugging
+    logging.debug(f"sliced events: {sliced_unique_events}")
 
     data_list = []
 
-    # def minkowski_distance(x,y):
-    #     spatial_distance = torch.norm(x[:3] - y[:3], p=2)  # Minkowski spatial distance
-    #     temporal_distance = torch.abs(x[3] - y[3])  # Absolute temporal distance
-    #     return (spatial_distance**2 + temporal_distance**2)**(1/2)
-
     #loops on the events IDs, creates a Data object for each event(a graph for each event)
 
-    for idx, event_id in enumerate(unique_events):
+    if parameters.use_sliced_tensor:
+        events = sliced_unique_events
+    else:
+        events = unique_events
+
+    for idx, event_id in enumerate(events):
         # Extract hits for the current event
         event_data = df[df.index.get_level_values(0) == event_id].copy()
         event_targets = targets[targets["event_id"] == event_id].copy()
@@ -62,7 +61,7 @@ def tensor_creator(df, targets, label):
         # Add the Data object to the list
         data_list.append(data)
         if(idx % 100 == 0):
-            print(f"processin event number: {idx}")
+            print(f"processing event number: {idx}")
         # print("Node Features Shape:", data.x.shape)
         # print("Node Targets Shape:", data.y.shape)
 
@@ -72,10 +71,9 @@ def tensor_creator(df, targets, label):
         data.edge_index = knn_graph(data.x, k=n_neighbors, loop=False)
 
         #prints some graphs if wanted
-        if graph_drawer and event_id in sliced_unique_events:
+        if parameters.graph_drawer and event_id in sliced_unique_events:
             graph_visualisation(data)
-        else:
-            None
+
 
         # creates an additional feature that takes into account the sum of charges for each cluster
         cluster_charge = torch.zeros(
