@@ -45,7 +45,7 @@ def loss_plots(train_losses, test_losses, train_rmses, test_rmses):
     plt.ylabel("Loss")
     plt.legend()
     plt.show()
-    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/test_graph_mean_170_epochs_20_hits_5_DNN_loss_45_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
+    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/test_graph_mean_180_epochs_20_hits_5_DNN_loss_40_0_001_loss_MSE_batch_256_dropout_simpler_mlp_knn_7_2files.png")
     plt.close()
 
     plt.figure(figsize=(10, 5))
@@ -56,6 +56,6 @@ def loss_plots(train_losses, test_losses, train_rmses, test_rmses):
     plt.ylabel("Loss")
     plt.legend()
     plt.show()
-    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/test_graph_mean_170_epochs_20_hits_5_DNN_RMSE_45_0_001_loss_MSE_batch_256_simpler_mlp_knn_7_2files.png")
+    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/test_graph_mean_180_epochs_20_hits_5_DNN_RMSE_40_0_001_loss_MSE_batch_256_dropout_simpler_mlp_knn_7_2files.png")
     plt.close()
 

@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 import torch
 import torch_geometric
-from torch_cluster import knn_graph
+#from torch_cluster import knn_graph
 from torch_geometric.data import Data
 import parameters as parameters
 from graph_visualizer import graph_visualisation

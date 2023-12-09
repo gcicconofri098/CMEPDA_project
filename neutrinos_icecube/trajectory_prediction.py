@@ -1,14 +1,15 @@
 import math
+import sys
 import logging
 import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
 import torch_geometric
+
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import MessagePassing
-from torch_cluster import knn_graph
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,10 +21,12 @@ from model_creation import model_creator
 from tensor_creation import tensor_creator
 from training_module import training_function
 from plots.plots_loss_and_rmse import single_batch_loss_plots, loss_plots
+from dataset_for_training import dataset_creator
 import parameters as parameters
 
 
-logging.basicConfig(filename='logging.log', level= parameters.log_value)
+logging.basicConfig(filename='logs/main_log.log', level= parameters.log_value)
+logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
 torch.set_num_threads(20)
@@ -66,31 +69,35 @@ if __name__ == "__main__":
     logging.debug(combined_data)
     logging.debug(combined_res)
 
-    print("creating the model")
+    logging.info("creating the model")
 
-    print("splitting the dataset")
+    logging.info("splitting the dataset")
+
     #splits the dataset into training and test 
     X_train, X_test, Y_train, Y_test = train_test_split(
         combined_data, combined_res, test_size=0.3, random_state=42
     )
 
-    print(X_train.shape)
-    print(Y_train.shape)
+    logging.debug("printing tensor shape")
+    logging.debug(f"X_train tensor: {X_train.shape}")
+    logging.debug(f"Y_train tensor: {Y_train.shape}")
 
-    print("creating the training tensor")
+    logging.info("creating the train torch tensor")
 
-    data_train = tensor_creator(X_train, Y_train, "train")
+    tensor_train = tensor_creator(X_train, Y_train, "train")
 
-    print("creating the test tensor")
+    logging.info("creating the test torch tensor")
 
-    data_test = tensor_creator(X_test, Y_test, "test")
-    print("creating the model")
+    tensor_test = tensor_creator(X_test, Y_test, "test")
+    logging.info("creating the model")
 
     model = model_creator()
 
+    dataset_train, dataset_test = dataset_creator(tensor_train, tensor_test)
+
     print("starting the training")
 
-    train_losses, test_losses, train_rmses, test_rmses = training_function(model, data_train, data_test)
+    train_losses, test_losses, train_rmses, test_rmses = training_function(model, dataset_train, dataset_test)
 
     if not parameters.debug_value:
         loss_plots(train_losses, test_losses, train_rmses, test_rmses)

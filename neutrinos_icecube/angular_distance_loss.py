@@ -1,8 +1,10 @@
+import sys
 import torch
 import numpy as np
 import logging
 
-logging.basicConfig(filename='custom_loss.log', level= logging.INFO)
+logging.basicConfig(filename='logs/custom_loss.log', level= logging.INFO)
+logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 def angular_dist_score(y_true, y_pred):
     """
@@ -59,4 +61,4 @@ def angular_dist_score(y_true, y_pred):
     scalar_prod =  np.clip(scalar_prod, -1, 1)
     
     # convert back to an angle (in radian)
-    return np.average(np.abs(np.arccos(scalar_prod)))
+    return torch.tensor(np.average(np.abs(np.arccos(scalar_prod))), requires_grad=True)

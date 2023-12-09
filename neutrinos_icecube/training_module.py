@@ -2,9 +2,6 @@ import sys
 import math
 import logging
 import torch
-import torch.nn as nn
-from torch.utils.data import Dataset
-import torch_geometric
 from torch_geometric.loader import DataLoader
 
 from angular_distance_loss import angular_dist_score
@@ -15,7 +12,7 @@ logging.basicConfig(filename='training_log.log', level= parameters.log_value)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
 
-def training_function(model, dataset_train, dataset_test):
+def training_function(model, custom_dataset_train, custom_dataset_test):
     """
     Trains the GNN
     Args:
@@ -27,21 +24,27 @@ def training_function(model, dataset_train, dataset_test):
         _type_: _description_
     """
 
-    class MyDataset(Dataset):
+    class EarlyStopper:
+        """_summary_
         """
-        Custom Dataset for handling the data
-        Args:
-            Dataset (Dataset): _description_
-        """
-        def __init__(self, data_list):
-            self.data_list = data_list
+        def __init__(self, patience=1, min_delta=0):
+            self.patience = patience
+            self.min_delta = min_delta
+            self.counter = 0
+            self.min_validation_loss = float('inf')
 
-        def __len__(self):
-            return len(self.data_list)
+        def early_stop(self, validation_loss):
+            if validation_loss < self.min_validation_loss:
+                self.min_validation_loss = validation_loss
+                self.counter = 0
+            elif validation_loss > (self.min_validation_loss + self.min_delta):
+                self.counter += 1
+                if self.counter >= self.patience:
+                    return True
+            return False
 
-        def __getitem__(self, idx):
-            data = self.data_list[idx]
-            return data
+    early_stopper = EarlyStopper(patience=3, min_delta=0.0003)
+
 
     def root_mean_squared_error(y_true, y_pred):
         """
@@ -57,9 +60,6 @@ def training_function(model, dataset_train, dataset_test):
         mean_squared_error = torch.mean(squared_diff)
         rmse = torch.sqrt(mean_squared_error)
         return rmse
-
-    custom_dataset_train = MyDataset(dataset_train)
-    custom_dataset_test = MyDataset(dataset_test)
 
     loss_func = torch.nn.MSELoss()
 
@@ -97,9 +97,9 @@ def training_function(model, dataset_train, dataset_test):
 
             output = model(data)
 
-            loss = angular_dist_score(data.y, output)
-            #loss = loss_func(output, data.y)
-            loss_tensor = torch.tensor(loss, requires_grad=True)
+            #loss = angular_dist_score(data.y, output)
+            loss = loss_func(output, data.y)
+            
             # print(type(loss))
             # if torch.isnan(loss).any:
             #     print(f"NaN in training loss at batch: {batch_idx}")
@@ -107,9 +107,9 @@ def training_function(model, dataset_train, dataset_test):
             #     print(f"Outputs: {output}")
             #     print(f'Loss tensor: {loss}')
 
-            loss_tensor.backward()
+            loss.backward()
             optimizer.step()
-            total_loss += loss_tensor.item()
+            total_loss += loss.item()
             total_rmse += root_mean_squared_error(data.y, output).item()
             # print(type(rmse))
             # if math.isnan(rmse):
@@ -154,10 +154,11 @@ def training_function(model, dataset_train, dataset_test):
 
         logging.debug(len(loader))
 
+
         with torch.no_grad():
             for batch_idx, data in enumerate(loader):
                 output = model(data)
-                loss = angular_dist_score(data.y, output)
+                #loss = angular_dist_score(data.y, output)
 
                 # if torch.isnan(loss).any:
                 #     print(f"NaN in test loss at batch: {batch_idx}")
@@ -165,7 +166,7 @@ def training_function(model, dataset_train, dataset_test):
                 #     print(f"Outputs: {output}")
                 #     print(f'Loss tensor: {loss}')
 
-                #loss = loss_func(output, data.y)
+                loss = loss_func(output, data.y)
                 total_loss += loss.item()
                 total_rmse += root_mean_squared_error(data.y, output).item()
 
@@ -187,6 +188,7 @@ def training_function(model, dataset_train, dataset_test):
                 batch_test_loss.append(loss.item())
                 batch_test_rmse.append(root_mean_squared_error(data.y, output).item())
 
+
         average_loss = total_loss / len(loader)
         average_rmse = total_rmse / len(loader)
 
@@ -201,7 +203,7 @@ def training_function(model, dataset_train, dataset_test):
     train_rmses = []
     test_rmses = []
 
-    number_of_epochs = 2 if parameters.debug_value else 171
+    number_of_epochs = 2 if parameters.debug_value else 191
 
     for epoch in range(1, number_of_epochs):
 
@@ -220,6 +222,10 @@ def training_function(model, dataset_train, dataset_test):
             or math.isinf(test_rmse)
         ):
             print("Training stopped due to NaN or infinite values.")
+            break
+        
+        if early_stopper.early_stop(test_loss):
+            logging.info("Stopping the training with early stopping")
             break
 
         test_losses.append(test_loss)

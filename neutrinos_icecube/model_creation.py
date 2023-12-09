@@ -1,5 +1,6 @@
 import torch
 import torch_geometric
+
 import torch.nn as nn
 from torch_geometric.nn import MessagePassing
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ import logging
 
 import parameters as parameters
 
-logging.basicConfig(filename='model_log.log', level= parameters.log_value)
+logging.basicConfig(filename='logs/model_log.log', level= parameters.log_value)
 
 def model_creator():
     """
@@ -33,6 +34,7 @@ def model_creator():
             self.mlp = nn.Sequential(
                 nn.Linear(2 * in_channels, out_channels),
                 nn.ReLU(),
+                nn.Dropout(p=0.1),
                 nn.Linear(out_channels, out_channels),
             )
             self.simpler_mlp = nn.Sequential(
@@ -59,7 +61,7 @@ def model_creator():
         """
         def __init__(self):
             super().__init__()
-            N_features = 30
+            N_features = 40
             #defines the layer that will be then used in the GNN
             self.f1 = DNNLayer(6, N_features)
             self.f2 = DNNLayer(N_features, N_features)
@@ -126,7 +128,7 @@ def model_creator():
             logging.debug(f"output shape: {h.shape}")
             return h
 
-    Model = Graph_Network()
-    # print(Model)
+    graph_model = Graph_Network()
+    print(graph_model)
 
-    return Model
+    return graph_model

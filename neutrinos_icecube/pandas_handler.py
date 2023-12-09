@@ -1,5 +1,12 @@
 import pandas as pd
 import numpy as np
+import logging 
+import parameters
+
+
+logging.basicConfig(filename='logs/dataframe_creation.log', level= parameters.log_value)
+
+
 
 def dataset_skimmer(df, geom):
     """
@@ -38,9 +45,10 @@ def dataset_skimmer(df, geom):
 
     df_with_geom2["n_counter"] = df_with_geom2.groupby("event_id").cumcount()
 
-    df_with_geom2 = df_with_geom2[df_with_geom2.n_counter < 20]
+    df_with_geom2 = df_with_geom2[df_with_geom2.n_counter < parameters.n_hits]
     
-    #print(df_with_geom2)
+    logging.debug("printing the dataframe after the skim function")
+    logging.debug(df_with_geom2)
 
     return df_with_geom2
 
@@ -57,9 +65,11 @@ def padding_function(df_with_geom):
     # compute the number of hits per event
     maxima = df_with_geom.groupby("event_id")["n_counter"].max().values
 
+    logging.debug(maxima)
+
     # find the number of rows to be added during the padding
 
-    n_counter_1 = np.where(maxima > 19, maxima, 19)
+    n_counter_1 = np.where(maxima > (parameters.n_hits -1), maxima, (parameters.n_hits -1))
     diff = np.array([n_counter_1 - maxima])
 
     #set a multi-index on the dataframe
@@ -70,11 +80,15 @@ def padding_function(df_with_geom):
     #take the array of event IDs
     ev_ids = np.unique(df_with_geom.index.get_level_values(0).values)
 
+    logging.debug(ev_ids.shape)
+
     zeros = np.zeros((n_rows, 6), dtype=np.int32)
 
     #reshape the arrays to the correct shape
     diff_reshaped = diff.flatten()
     ev_ids_reshaped = np.reshape(ev_ids, (len(ev_ids), 1))
+
+    logging.debug(ev_ids_reshaped.shape)
 
     #create a new index witht the events IDs to be used on the padded dataframe
     new_index = np.repeat(ev_ids_reshaped, diff_reshaped)
@@ -110,7 +124,7 @@ def padding_function(df_with_geom):
 
     #drops unnecessary columns
     df_final = df_final.drop(labels=["n_counter", "sensor_id"], axis=1)
-    print(df_final)
+    logging.debug(df_final)
     return df_final
 
 def unstacker(df_final):
