@@ -1,24 +1,37 @@
+"""This module handles the creation and processing of the pandas dataframes 
+
+Returns:
+    _type_: _description_
+"""
+import sys
 import pandas as pd
 import numpy as np
-import logging 
+
 import parameters
 
+from logging_conf import setup_logging
 
-logging.basicConfig(filename='logs/dataframe_creation.log', level= parameters.log_value)
+logger = setup_logging('dataframe_creation')
 
 
-
-def dataset_skimmer(df, geom):
+def dataset_skimmer(df):
     """
     Prepares the dataset for padding operation.
 
     Args:
         df (pandas Dataframe): contains information on the event hits
-        geom (pandas Dataframe): contains information on the geometry of the experiment
+
 
     Returns:
         pandas Dataframe: contains the skimmed hits for the events, with information on the geometry
     """
+    
+    #loads the csv that contains information on the detector as a pandas dataframe
+
+    geometry = pd.read_csv("/scratchnvme/cicco/cmepda/sensor_geometry.csv")
+
+    logger.debug(geometry) 
+
     # the flag "auxiliary" takes into account information from the MC about the goodness of the hit
     df = df[
         df["auxiliary"] == False
@@ -26,7 +39,7 @@ def dataset_skimmer(df, geom):
 
     df = df.drop(labels="auxiliary", axis=1)
 
-    df_with_geom = df.merge(geom, how="left", on="sensor_id").reset_index(
+    df_with_geom = df.merge(geometry, how="left", on="sensor_id").reset_index(
         drop=True
     )  # merges the two feature datasets
 
@@ -47,8 +60,9 @@ def dataset_skimmer(df, geom):
 
     df_with_geom2 = df_with_geom2[df_with_geom2.n_counter < parameters.n_hits]
     
-    logging.debug("printing the dataframe after the skim function")
-    logging.debug(df_with_geom2)
+    logger.debug("printing the dataframe after the skim function")
+    logger.debug(df_with_geom2)
+    logger.debug(df_with_geom2.shape)
 
     return df_with_geom2
 
@@ -65,7 +79,7 @@ def padding_function(df_with_geom):
     # compute the number of hits per event
     maxima = df_with_geom.groupby("event_id")["n_counter"].max().values
 
-    logging.debug(maxima)
+    logger.debug(maxima)
 
     # find the number of rows to be added during the padding
 
@@ -80,19 +94,21 @@ def padding_function(df_with_geom):
     #take the array of event IDs
     ev_ids = np.unique(df_with_geom.index.get_level_values(0).values)
 
-    logging.debug(ev_ids.shape)
+    logger.debug(ev_ids.shape)
 
     zeros = np.zeros((n_rows, 6), dtype=np.int32)
+    
+    logger.debug(zeros)
 
     #reshape the arrays to the correct shape
     diff_reshaped = diff.flatten()
     ev_ids_reshaped = np.reshape(ev_ids, (len(ev_ids), 1))
 
-    logging.debug(ev_ids_reshaped.shape)
+    logger.debug(ev_ids_reshaped.shape)
 
     #create a new index witht the events IDs to be used on the padded dataframe
     new_index = np.repeat(ev_ids_reshaped, diff_reshaped)
-
+    logger.debug(df_with_geom)
     # creates a dataframe filled with zeros to be cancatenated to the data dataframe
     pad_df = pd.DataFrame(
         zeros, index=new_index, columns=df_with_geom.columns
@@ -124,7 +140,8 @@ def padding_function(df_with_geom):
 
     #drops unnecessary columns
     df_final = df_final.drop(labels=["n_counter", "sensor_id"], axis=1)
-    logging.debug(df_final)
+    logger.debug(df_final)
+    logger.debug(df_final.shape)
     return df_final
 
 def unstacker(df_final):
@@ -136,11 +153,43 @@ def unstacker(df_final):
     Returns:
         pandas Dataframe: dataframe containing one event per row
     """
-    print(df_final)
+    logger.debug(df_final)
 
     # unstack the dataset on the counter level of index, so that all the hits per event are set in a single row
     df_final1 = df_final.unstack()
 
-    print(df_final1)
+    logger.debug("printing unstacked shape")
+    logger.debug(df_final1.shape)
 
     return df_final1
+
+def targets_definer(df_final, targets):
+    """
+        creates a dataframe that contains the targets for each event
+    Args:
+        df_final (pandas Dataframe): feature dataframe from which the event IDs are taken
+
+    Returns:
+        pandas Dataframe: dataframe with azimuth and zenith for each event
+    """
+    #the dataset contains information on all the datasets, 
+    # so targets for the events considered need to be extracted
+
+    # gets the list of event IDs
+
+    events = df_final.index.get_level_values(0).unique()
+
+    #takes only the targets for the events present in the feature dataframe
+    targets1 = targets[targets.event_id.isin(events)]
+
+    targets1 = targets1.sort_index()
+
+    logger.debug(targets1)    
+
+    #drops unnecessary columns
+    targets1 = targets1.drop(
+        labels=["first_pulse_index", "last_pulse_index", "batch_id"], axis=1
+    )
+    logger.debug("printing targets")
+    logger.debug(targets1)
+    return targets1

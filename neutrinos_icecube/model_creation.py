@@ -5,11 +5,11 @@ import torch.nn as nn
 from torch_geometric.nn import MessagePassing
 import matplotlib.pyplot as plt
 import networkx as nx
-import logging
+from logging_conf import setup_logging
 
 import parameters as parameters
 
-logging.basicConfig(filename='logs/model_log.log', level= parameters.log_value)
+logger = setup_logging('model_log')
 
 def model_creator():
     """
@@ -84,48 +84,48 @@ def model_creator():
             """
             x = data.x
             edge_index = data.edge_index
-            logging.debug(f"shape before f1: {x.shape}")
+            logger.debug(f"shape before f1: {x.shape}")
 
             h = self.f1(h=x, edge_index=edge_index)
-            logging.debug(f"shape after f1: {h.shape}")
+            logger.debug(f"shape after f1: {h.shape}")
 
 
             h = h.relu()
-            logging.debug(f"shape after relu1: {h.shape}")
+            logger.debug(f"shape after relu1: {h.shape}")
 
             h = self.f2(h=h, edge_index=edge_index)
-            logging.debug(f"shape after f2: {h.shape}")
+            logger.debug(f"shape after f2: {h.shape}")
 
             h = h.relu()
-            logging.debug(f"shape after relu2: {h.shape}")
+            logger.debug(f"shape after relu2: {h.shape}")
 
             h = self.f3(h=h, edge_index=edge_index)
-            logging.debug(f"shape after f3: {h.shape}")
+            logger.debug(f"shape after f3: {h.shape}")
 
             h = h.relu()
-            logging.debug(f"shape after relu3: {h.shape}")
+            logger.debug(f"shape after relu3: {h.shape}")
 
             h = self.f4(h=h, edge_index= edge_index)
-            logging.debug(f"shape after f4: {h.shape}")
+            logger.debug(f"shape after f4: {h.shape}")
 
             h = h.relu()
-            logging.debug(f"shape after relu4: {h.shape}")
+            logger.debug(f"shape after relu4: {h.shape}")
 
 
             h = self.f5(h=h, edge_index= edge_index)
-            logging.debug(f"shape after f5: {h.shape}")
+            logger.debug(f"shape after f5: {h.shape}")
 
             h = h.relu()
-            logging.debug(f"shape after relu5: {h.shape}")
+            logger.debug(f"shape after relu5: {h.shape}")
 
 
             h = self.global_pooling(h, data.batch)
 
-            logging.debug(f"shape after global pooling: {h.shape}")
+            logger.debug(f"shape after global pooling: {h.shape}")
 
             h = self.output(h)
 
-            logging.debug(f"output shape: {h.shape}")
+            logger.debug(f"output shape: {h.shape}")
             return h
 
     graph_model = Graph_Network()

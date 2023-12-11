@@ -1,13 +1,13 @@
 import pandas as pd
-import logging
 import torch
 import torch_geometric
 #from torch_cluster import knn_graph
 from torch_geometric.data import Data
 import parameters as parameters
 from graph_visualizer import graph_visualisation
+from logging_conf import setup_logging
 
-logging.basicConfig(filename='logging.log', level= parameters.log_value)
+logger = setup_logging('tensor_creation')
 
 def tensor_creator(df, targets, label):
     """
@@ -22,7 +22,7 @@ def tensor_creator(df, targets, label):
     unique_events = pd.unique(df.index.get_level_values(0))
 
     sliced_unique_events = unique_events[:1000] #subset of events for debugging
-    logging.debug(f"sliced events: {sliced_unique_events}")
+    logger.debug(f"sliced events: {sliced_unique_events}")
 
     data_list = []
 

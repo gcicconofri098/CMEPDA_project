@@ -1,10 +1,9 @@
 import sys
 import torch
 import numpy as np
-import logging
+from logging_conf import setup_logging
 
-logging.basicConfig(filename='logs/custom_loss.log', level= logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+logger = setup_logging('custom_loss')
 
 def angular_dist_score(y_true, y_pred):
     """
@@ -23,17 +22,17 @@ def angular_dist_score(y_true, y_pred):
     """
 
 
-    logging.debug(y_true.shape)
-    logging.debug(y_pred.shape)
+    logger.debug(y_true.shape)
+    logger.debug(y_pred.shape)
     az_pred = y_pred[:, 0].clone().detach().numpy() #using torch.clone() and then torch.detach() to have 
     az_true = y_true[:, 0].numpy()
     zen_true = y_true[:, 1].numpy()
     zen_pred = y_pred[:, 1].clone().detach().numpy()
 
-    logging.debug(az_pred.shape)
-    logging.debug(az_true.shape)
-    logging.debug(zen_pred.shape)
-    logging.debug(zen_true.shape)
+    logger.debug(az_pred.shape)
+    logger.debug(az_true.shape)
+    logger.debug(zen_pred.shape)
+    logger.debug(zen_true.shape)
 
 
     if not (np.all(np.isfinite(az_true)) and

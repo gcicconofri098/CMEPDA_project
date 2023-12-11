@@ -1,16 +1,13 @@
 import sys
 import math
-import logging
 import torch
 from torch_geometric.loader import DataLoader
 
 from angular_distance_loss import angular_dist_score
-
+from logging_conf import setup_logging
 import parameters
 
-logging.basicConfig(filename='training_log.log', level= parameters.log_value)
-logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
+logger = setup_logging('training_log')
 
 def training_function(model, custom_dataset_train, custom_dataset_test):
     """
@@ -83,7 +80,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         Returns:
             _type_: _description_
         """
-        logging.debug(len(loader))
+        logger.debug(len(loader))
         model.train()
         total_loss = 0
         total_rmse = 0
@@ -152,7 +149,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         batch_test_loss = []
         batch_test_rmse = []
 
-        logging.debug(len(loader))
+        logger.debug(len(loader))
 
 
         with torch.no_grad():
@@ -225,7 +222,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
             break
         
         if early_stopper.early_stop(test_loss):
-            logging.info("Stopping the training with early stopping")
+            logger.info("Stopping the training with early stopping")
             break
 
         test_losses.append(test_loss)
@@ -234,7 +231,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         test_rmses.append(test_rmse)
         train_rmses.append(train_rmse)
 
-        logging.info(
+        logger.info(
                 f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Train RMSE: {train_rmse:.4f}, Test RMSE: {test_rmse: .4f}"
             )
     return train_losses, test_losses, train_rmses, test_rmses
