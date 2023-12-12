@@ -8,13 +8,14 @@ def graph_visualisation(data, event_id, label):
     """
     plots the graphs on the xy plane and yz plane.
     Args:
-        data (torch tensor): torch tensor with both targets and features
+        data (torch_geometric.Data): Data containing both targets and features
     """
     g = torch_geometric.utils.to_networkx(data)
     x = data.x
 
     pos = {i: (x[i, 1].item(), x[i, 2].item()) for i in range(len(x))}
     subset_graph = g.subgraph(range(len(x)))
+
     #uses the charge of the hits as color scheme
     node_colors = x[:, 0].numpy()
     node_size = 40
@@ -85,8 +86,6 @@ def graph_visualisation(data, event_id, label):
         [], [], c=[], cmap="viridis", vmin=node_colors.min(), vmax=node_colors.max()
     )
 
-    # print("node colors", node_colors)
-    # print(data.x)
     nx.draw(
         subset_graph1,
         pos=pos1,

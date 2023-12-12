@@ -20,24 +20,42 @@ from logging_conf import setup_logging
 logger = setup_logging('main_log')
 
 
-torch.set_num_threads(20)
+torch.set_num_threads(35)
 
 
 #pylint:disable = invalid-name
 
+
+
+
 if __name__ == "__main__":
+
+    # Checks if CUDA is available
+    if torch.cuda.is_available():
+
+        num_gpus = torch.cuda.device_count()
+        
+        print(f"CUDA is available with {num_gpus} GPU(s).")
+
+        torch.cuda.set_device(0)
+
+        # Gets the name of the current GPU
+        current_gpu_name = torch.cuda.get_device_name(0)
+        print(f"Using GPU: {current_gpu_name}")
+
+        # Sets the device for PyTorch tensors to the GPU
+        device = torch.device("cuda")
+    else:
+        print("CUDA is not available. Using CPU.")
+        # If CUDA is not available, set the device to CPU
+        device = torch.device("cpu")
+
 
     DATA_PATH = "/scratchnvme/cicco/cmepda/"
     DATA_FILES = [
         "batch_1.parquet",
         "batch_2.parquet",
-        # "batch_10.parquet",
-        # "batch_11.parquet",
-        # "batch_100.parquet",
-        # "batch_101.parquet",
-    ]  # , 'batch_102.parquet', 'batch_103.parquet']
-
-
+        ]
 
     combined_data = pd.DataFrame()
     combined_res = pd.DataFrame()
@@ -47,19 +65,21 @@ if __name__ == "__main__":
 
         targets = pd.read_parquet("/scratchnvme/cicco/cmepda/train_meta.parquet")
 
+        logger.info("creating the pandas dataframe")
 
         dataframe_final = dataset_skimmer(dataframe)
 
         dataframe_final1 = padding_function(dataframe_final)
 
-        targets = targets_definer(dataframe_final1, targets)
-
-        logger.info("unstacking")
-
         dataframe_final3 = unstacker(dataframe_final1)
+
         logger.debug(dataframe_final3)
 
+        logger.info("pandas dataframe have been unstacked")
 
+        targets = targets_definer(dataframe_final3, targets)
+        
+        logger.info("targets have been defined")
 
         combined_data = pd.concat([combined_data, dataframe_final3], ignore_index=False)
 
@@ -83,18 +103,28 @@ if __name__ == "__main__":
 
     logger.info("creating the train torch tensor")
 
-    tensor_train = tensor_creator(X_train, Y_train, "train")
+    if parameters.use_sliced_tensor:
+
+        tensor_train = tensor_creator(X_train, Y_train, "train")
+    else: 
+        tensor_train = tensor_creator(X_train, Y_train)
 
     logger.info("creating the test torch tensor")
+    if parameters.use_sliced_tensor:
 
-    tensor_test = tensor_creator(X_test, Y_test, "test")
+        tensor_test = tensor_creator(X_test, Y_test, "test")
+    else:
+        tensor_test = tensor_creator(X_test, Y_test)
+
     logger.info("creating the model")
 
     model = model_creator()
 
+    logger.info("creating the data tensors")
+
     dataset_train, dataset_test = dataset_creator(tensor_train, tensor_test)
 
-    print("starting the training")
+    logger.info("starting the training")
 
     train_losses, test_losses, train_rmses, test_rmses = training_function(model, dataset_train, dataset_test)
 

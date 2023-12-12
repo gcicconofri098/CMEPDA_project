@@ -1,21 +1,26 @@
+"""
+Module that handles the creation of the Datasets using the list of Data created with the modle tensor_creation
+"""
 from torch.utils.data import Dataset
 
 def dataset_creator(train_tensor, test_tensor):
     """
-    Creates a dataset from the Data tensor and creates a Dataset object
+    Creates a Dataset from the list of Data in input
 
     Args:
-        train_tensor (Data object): Data object for the training 
-        test_tensor (Data object): Data object for the test
+        train_tensor (list of torch_geometric.Data): list of Data for the training 
+        test_tensor (list of torch_geometric.Data): list of Data for the test
 
     Returns:
-        _type_: _description_
+        custom_dataset_train (torch.utils.data.Dataset): Dataset for the training
+        custom_dataset_test (torch.utils.data.Dataset): Dataset for the testing
     """
     class MyDataset(Dataset):
         """
-        Custom Dataset for handling the data
+        Custom Dataset for handling the Data. 
+        It takes the list of Data and implements the custom
         Args:
-            Dataset (Dataset): _description_
+            Dataset (torch.utils.data.Dataset): class for handling datasets
         """
         def __init__(self, data_list):
             self.data_list = data_list
@@ -26,8 +31,7 @@ def dataset_creator(train_tensor, test_tensor):
         def __getitem__(self, idx):
             data = self.data_list[idx]
             return data
-        
-    
+     
     custom_dataset_train = MyDataset(train_tensor)
     custom_dataset_test = MyDataset(test_tensor)
 

@@ -8,6 +8,7 @@ import sys
 sys.path.append('../neutrinos_icecube/')
 
 from pandas_handler import dataset_skimmer, padding_function, unstacker, targets_definer
+from tensor_creation import tensor_creator
 import parameters
 
 IS_TEST_LOCAL = False
@@ -21,13 +22,17 @@ else:
     targets = pd.read_parquet("/scratchnvme/cicco/cmepda/train_meta.parquet")
 
 class PandasTestModule(unittest.TestCase):
-    """Class that inherits from the unittest module that checks the correct shape of the pandas dataframes
+    """Class that checks that the pandas DataFrames have the correct shape
 
     Args:
-        unittest (_type_): _description_
+        None
+
+    Methods:
+
     """
     
     def setup(self):
+
         logging.disable(logging.CRITICAL)
         
     def test_dataframe_shape(self):
@@ -72,7 +77,36 @@ class PandasTestModule(unittest.TestCase):
 
 class TorchTensorTestModule(unittest.TestCase):
 
+    """Class that checks that the torch Tensor is correctly created
+    """
+
     def initialisation(self):
+        """Initialises the pandas tensor that will be used to test the module that creates the torch tensors
+        """
+        skimmed_dataset = dataset_skimmer(pandas_dataset)
+        padded_df = padding_function(skimmed_dataset)
+        unstacked_df = unstacker(padded_df)
+        needed_targets = targets_definer(unstacked_df, targets)
+
+        return unstacked_df, needed_targets
+    
+    def test_tensor_shape(self):
+        """ Creates the list of torch_geometric.Data, then takes a casual element of the list and checks that
+            the shapes are the ones expected and that the connections inside the graph are actually made.
+        """
+        df, targets_df = self.initialisation()
+
+        data_list = tensor_creator(df, targets_df)
+        
+        self.assertTrue(len(data_list)>0, "The list of data is empty")
+
+        random_index = np.random.choice(len(data_list))
+        
+        self.assertTrue(len(data_list[random_index].edge_index) >0, "Failed to create connections in the knn_graph")
+
+        self.assertEqual(data_list[random_index].x.shape[1], 6, "Failed test on data.x, dim1")
+
+        self.assertEqual(data_list[random_index].y.shape, (1,2), "Failed test that checks the shape of the target tensor (1,2)")
 
 
 if __name__ == '__main__':

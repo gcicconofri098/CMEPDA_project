@@ -3,11 +3,11 @@ import torch_geometric
 
 import torch.nn as nn
 from torch_geometric.nn import MessagePassing
-import matplotlib.pyplot as plt
-import networkx as nx
+
 from logging_conf import setup_logging
 
-import parameters as parameters
+import parameters 
+import hyperparameters
 
 logger = setup_logging('model_log')
 
@@ -21,20 +21,28 @@ def model_creator():
 
     class DNNLayer(MessagePassing):
         """
-        custom layer for the Graph Neural Network (GNN) that inherits from the Message Passing layer
+        Custom layer for the Graph Neural Network (GNN) that inherits from the Message Passing layer
         Args:
-            MessagePassing (_type_): layer for GNN
+            in_channels (int): Number of input channels
+            out_channels (int): Number of output channels
+
+        Attributes:
+            mlp (nn.Sequential): MLP for message passing
+            simpler_mlp (nn.Sequential): additional MLP added after the propagation
+        
+        Methods
+            forward(torch.Tensor, torch.Tensor): Performs a forward pass through the DNNLayer
         """
 
         def __init__(self, in_channels, out_channels):
             
             super().__init__(aggr="mean") #aggregation method for the nodes used the mean
 
-            #creates a MLP used for message
+            #creates a MLP used as message
             self.mlp = nn.Sequential(
                 nn.Linear(2 * in_channels, out_channels),
                 nn.ReLU(),
-                nn.Dropout(p=0.1),
+                nn.Dropout(p=hyperparameters.dropout_value),
                 nn.Linear(out_channels, out_channels),
             )
             self.simpler_mlp = nn.Sequential(
@@ -44,43 +52,72 @@ def model_creator():
             )
 
         def forward(self, h, edge_index):
+            """Performs a forward pass through the DNNLayer
+
+            Args:
+                h (torch.Tensor): Node features
+                edge_index (torch.Tensor): Graph connection defined by the edge indices
+
+            Returns:
+                torch.Tensor: Output tensor
+            """
             h1 = self.propagate(edge_index, h=h)
             h2 = self.simpler_mlp(h1)
             return h2
 
         def message(self, h_j, h_i):
-            #message that will be propagated in the forward function. It is made considering the EdgeConv idea
-            input = torch.cat([h_i, h_j - h_i], dim=-1)
-            return self.mlp(input)
+            """ Defines the message to be propagated in the forward function.
+                The message is creating considering the EdgeConv concept
+
+            
+            Args:
+                h_j (torch.Tensor): Target node features
+                h_i (torch.Tensor): Source node features
+
+            Returns:
+                torch.Tensor: Output tensor
+            """
+            new_input = torch.cat([h_i, h_j - h_i], dim=-1)
+            return self.mlp(new_input)
 
     class Graph_Network(nn.Module):
         """
-        Creates the effective GNN
+        Implemention of the GNN
         Args:
-            nn (_type_): _description_
+            None
+        
+        Attributes:
+            f1, f2, f3,f4,f5 (DNNLayer): Feedforward layers with additional Dropout layer
+            global_pooling (torch_geometric.nn.Pooling): Global pooling layer for aggregating the node features
+            output (nn.Linear): Output layer
+        
+        Methods:
+            forward(data): Performs a pass through the model
+
+
         """
         def __init__(self):
             super().__init__()
-            N_features = 40
-            #defines the layer that will be then used in the GNN
-            self.f1 = DNNLayer(6, N_features)
-            self.f2 = DNNLayer(N_features, N_features)
-            self.f3 = DNNLayer(N_features, N_features)
-            self.f4 = DNNLayer(N_features, N_features)
-            self.f5 = DNNLayer(N_features, N_features)
+
+            #defines the layers that will be then used in the GNN
+            self.f1 = DNNLayer(6, hyperparameters.N_features)
+            self.f2 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
+            self.f3 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
+            self.f4 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
+            self.f5 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
 
             self.global_pooling = torch_geometric.nn.global_mean_pool
 
-            self.output = nn.Linear(N_features, 2)
+            self.output = nn.Linear(hyperparameters.N_features, 2)
 
         def forward(self, data):
             """
-            assembles the GNN
+            performs a forward pass through the GNN model
             Args:
-                data (Dataset): dataset that contains both the features and the targets
+                data (Data): Data that contains both the features and the targets
 
             Returns:
-                _type_: _description_
+                torch.Tensor: Output tensor after GNN processing
             """
             x = data.x
             edge_index = data.edge_index
@@ -88,7 +125,6 @@ def model_creator():
 
             h = self.f1(h=x, edge_index=edge_index)
             logger.debug(f"shape after f1: {h.shape}")
-
 
             h = h.relu()
             logger.debug(f"shape after relu1: {h.shape}")
@@ -111,13 +147,11 @@ def model_creator():
             h = h.relu()
             logger.debug(f"shape after relu4: {h.shape}")
 
-
             h = self.f5(h=h, edge_index= edge_index)
             logger.debug(f"shape after f5: {h.shape}")
 
             h = h.relu()
             logger.debug(f"shape after relu5: {h.shape}")
-
 
             h = self.global_pooling(h, data.batch)
 

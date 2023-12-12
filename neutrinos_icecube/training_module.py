@@ -40,7 +40,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
                     return True
             return False
 
-    early_stopper = EarlyStopper(patience=3, min_delta=0.0003)
+    early_stopper = EarlyStopper(patience=5, min_delta=0.0003)
 
 
     def root_mean_squared_error(y_true, y_pred):
@@ -60,8 +60,8 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
 
     loss_func = torch.nn.MSELoss()
 
-    train_loader = DataLoader(custom_dataset_train, batch_size=256, shuffle=True)
-    test_loader = DataLoader(custom_dataset_test, batch_size=256, shuffle=True)
+    train_loader = DataLoader(custom_dataset_train, batch_size=512, shuffle=True)
+    test_loader = DataLoader(custom_dataset_test, batch_size=512, shuffle=True)
 
     # for batch in train_loader:
     # print(type(batch))
