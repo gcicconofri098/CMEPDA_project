@@ -1,9 +1,8 @@
-"""This module handles the creation and processing of the pandas dataframes 
+"""This module handles the creation and processing of the pandas DataFrames 
 
 Returns:
-    _type_: _description_
+    (pandas.DataFrame, pandas.DataFrame): pandas.DataFrame of the features and the targets
 """
-import sys
 import pandas as pd
 import numpy as np
 
@@ -13,10 +12,8 @@ from logging_conf import setup_logging
 
 logger = setup_logging('dataframe_creation')
 
-
 def dataset_skimmer(df):
-    """
-    Prepares the dataset for padding operation.
+    """ Prepares the dataset for padding operation.
 
     Args:
         df (pandas Dataframe): contains information on the event hits
@@ -67,8 +64,7 @@ def dataset_skimmer(df):
     return df_with_geom2
 
 def padding_function(df_with_geom):
-    """
-    adds a zero-padding to take into account the different number of hits per event
+    """ Adds a zero-padding to take into account the different number of hits per event
 
     Args:
         df_with_geom (pandas Dataframe): dataframe with feature information
@@ -76,6 +72,7 @@ def padding_function(df_with_geom):
     Returns:
         pandas Dataframe: dataframe with the same number of hit for each event
     """
+
     # compute the number of hits per event
     maxima = df_with_geom.groupby("event_id")["n_counter"].max().values
 
@@ -145,14 +142,14 @@ def padding_function(df_with_geom):
     return df_final
 
 def unstacker(df_final):
-    """
-    Creates a dataframe where each row contains one event
+    """ Creates a dataframe where each row contains one event
     Args:
         df_final (pandas Dataframe): dataframe containing one hit per row
 
     Returns:
         pandas Dataframe: dataframe containing one event per row
     """
+
     logger.debug(df_final)
 
     # unstack the dataset on the counter level of index, so that all the hits per event are set in a single row
@@ -164,14 +161,14 @@ def unstacker(df_final):
     return df_final1
 
 def targets_definer(df_final, targets):
-    """Creates a dataframe that contains the targets for each event
+    """ Creates a dataframe that contains the targets for each event
     Args:
         df_final (pandas Dataframe): feature dataframe from which the event IDs are taken
 
     Returns:
         pandas Dataframe: dataframe with azimuth and zenith for each event
-
     """
+    
     #the dataset contains information on all the datasets, 
     # so targets for the events considered need to be extracted
 

@@ -1,11 +1,9 @@
-import math
+""" Main module. Predicts the trajectory of the observed particles."""
+
 import pandas as pd
 import torch
-import torch.nn as nn
 
 from sklearn.model_selection import train_test_split
-
-import numpy as np
 
 from angular_distance_loss import angular_dist_score
 from pandas_handler import dataset_skimmer, padding_function, unstacker, targets_definer

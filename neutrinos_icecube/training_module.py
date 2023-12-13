@@ -1,4 +1,9 @@
-import sys
+""" Handles the training of the GNN
+
+Returns:
+    lists: List of the loss and RMSE for each epoch, for both training and test 
+"""
+
 import math
 import torch
 from torch_geometric.loader import DataLoader
@@ -11,7 +16,7 @@ import hyperparameters
 logger = setup_logging('training_log')
 
 def training_function(model, custom_dataset_train, custom_dataset_test):
-    """Trains the GNN
+    """ Trains the GNN
 
     Args:
         model (_type_): Model defined for the GNN

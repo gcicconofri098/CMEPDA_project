@@ -1,4 +1,12 @@
-import sys
+""" Module that contains the custom loss proposed in the competition.
+
+Raises:
+    ValueError: Raises an error if an infinite value is found.
+
+Returns:
+    torch.Tensor: Loss value computed
+"""
+
 import torch
 import numpy as np
 from logging_conf import setup_logging
@@ -6,7 +14,8 @@ from logging_conf import setup_logging
 logger = setup_logging('custom_loss')
 
 def angular_dist_score(y_true, y_pred):
-    """Calculate the MAE of the angular distance between two directions.
+
+    """ Calculates the MAE of the angular distance between two directions.
     The two vectors are first converted to cartesian unit vectors,
     and then their scalar product is computed, which is equal to
     the cosine of the angle between the two vectors. The inverse
@@ -19,7 +28,6 @@ def angular_dist_score(y_true, y_pred):
     Returns:
         _type_: _description_
     """
-
 
     logger.debug(y_true.shape)
     logger.debug(y_pred.shape)

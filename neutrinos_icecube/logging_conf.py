@@ -1,4 +1,4 @@
-"""This module handles the logging part of the package.
+""" This module handles the logging part of the package.
 It sets the log path for all the modules, and the global level of logging.
 """
 

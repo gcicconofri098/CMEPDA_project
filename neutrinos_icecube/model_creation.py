@@ -1,3 +1,9 @@
+""" Creates and implements the model of the Graph Neural Network.
+
+Returns:
+    (Graph_Network): An istance of the class Graph_Network
+"""
+
 import torch
 import torch_geometric
 
@@ -12,8 +18,7 @@ import hyperparameters
 logger = setup_logging('model_log')
 
 def model_creator():
-    """
-    creates the model for the neural network
+    """ Creates the model for the neural network
 
     Returns:
         _type_: model of the neural network
@@ -61,6 +66,7 @@ def model_creator():
             Returns:
                 torch.Tensor: Output tensor
             """
+
             h1 = self.propagate(edge_index, h=h)
             h2 = self.simpler_mlp(h1)
             return h2
@@ -77,6 +83,7 @@ def model_creator():
             Returns:
                 torch.Tensor: Output tensor
             """
+
             new_input = torch.cat([h_i, h_j - h_i], dim=-1)
             return self.mlp(new_input)
 
@@ -93,9 +100,8 @@ def model_creator():
         
         Methods:
             forward(data): Performs a pass through the model
-
-
         """
+
         def __init__(self):
             super().__init__()
 
@@ -119,6 +125,7 @@ def model_creator():
             Returns:
                 torch.Tensor: Output tensor after GNN processing
             """
+            
             x = data.x
             edge_index = data.edge_index
             logger.debug(f"shape before f1: {x.shape}")
