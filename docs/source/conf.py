@@ -12,7 +12,7 @@
 import os
 import sys
 
-package_root = os.path.abspath(os.path.join('...', '...'))
+package_root = os.path.abspath(os.path.join('..', '..'))
 package_name = 'neutrinos_icecube'
 
 sys.path.insert(0, package_root)
