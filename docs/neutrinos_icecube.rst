@@ -20,13 +20,6 @@ neutrinos\_icecube.dataset\_for\_training module
    :undoc-members:
    :show-inheritance:
 
-neutrinos\_icecube.graph\_visualizer module
--------------------------------------------
-
-.. automodule:: neutrinos_icecube.graph_visualizer
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 neutrinos\_icecube.hyperparameters module
 -----------------------------------------
