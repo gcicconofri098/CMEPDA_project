@@ -17,14 +17,10 @@ from logging_conf import setup_logging
 
 logger = setup_logging('main_log')
 
-
 torch.set_num_threads(35)
 
 
 #pylint:disable = invalid-name
-
-
-
 
 if __name__ == "__main__":
 
