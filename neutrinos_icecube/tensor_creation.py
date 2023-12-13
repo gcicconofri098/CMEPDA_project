@@ -11,15 +11,16 @@ from logging_conf import setup_logging
 logger = setup_logging('tensor_creation')
 
 def tensor_creator(df, targets, **kwargs):
-    """
-    Takes the pandas Dataframes and creates the torch Tensor for the GNN
+    """Takes the pandas Dataframes and creates the torch Tensor for the GNN
     Args:
         df (pandas.DataFrame): dataframe with the features
         targets (pandas.DataFrame): dataframe with the targets
         label (str): string that differentiates training and test samples for debugging
     Returns:
         data_list (list of torch_geometric.Data): a  list that contains Data 
+
     """
+    
     if 'label' in kwargs: #takes into account whether there is a label in the function call 
         label = kwargs.get('label')
 

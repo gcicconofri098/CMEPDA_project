@@ -164,13 +164,13 @@ def unstacker(df_final):
     return df_final1
 
 def targets_definer(df_final, targets):
-    """
-        creates a dataframe that contains the targets for each event
+    """Creates a dataframe that contains the targets for each event
     Args:
         df_final (pandas Dataframe): feature dataframe from which the event IDs are taken
 
     Returns:
         pandas Dataframe: dataframe with azimuth and zenith for each event
+
     """
     #the dataset contains information on all the datasets, 
     # so targets for the events considered need to be extracted

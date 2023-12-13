@@ -1,7 +1,7 @@
-script module
-=============
+conf module
+===========
 
-.. automodule:: script
+.. automodule:: conf
    :members:
    :undoc-members:
    :show-inheritance:

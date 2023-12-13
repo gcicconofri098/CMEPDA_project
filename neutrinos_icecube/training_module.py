@@ -11,8 +11,8 @@ import hyperparameters
 logger = setup_logging('training_log')
 
 def training_function(model, custom_dataset_train, custom_dataset_test):
-    """
-    Trains the GNN
+    """Trains the GNN
+
     Args:
         model (_type_): Model defined for the GNN
         dataset_train (Dataset): Dataset used for the training
@@ -45,8 +45,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
 
 
     def root_mean_squared_error(y_true, y_pred):
-        """
-        Definition of RMSE
+        """Definition of RMSE
         Args:
             y_true (torch.tensor): truth values for azimuth and zenith
             y_pred (torch.tensor): predicted values for azimuth and zenith
@@ -54,6 +53,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         Returns:
             float: RMSE calculated
         """
+
         squared_diff = (y_true - y_pred) ** 2
         mean_squared_error = torch.mean(squared_diff)
         rmse = torch.sqrt(mean_squared_error)
@@ -71,8 +71,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     def train(model, optimizer, loader):
-        """
-        Train function
+        """Training function
         Args:
             model (_type_): _description_
             optimizer (_type_): _description_
@@ -81,6 +80,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         Returns:
             _type_: _description_
         """
+
         logger.debug(len(loader))
         model.train()
         total_loss = 0
@@ -134,8 +134,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
             return average_loss, average_rmse
 
     def evaluate(model, loader):
-        """
-        Function for validation
+        """Function for validation
         Args:
             model (_type_): _description_
             loader (Dataset): test dataset
@@ -143,6 +142,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         Returns:
             _type_: _description_
         """
+
         model.eval()
         total_loss = 0.0
         total_rmse = 0.0

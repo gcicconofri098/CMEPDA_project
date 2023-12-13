@@ -16,7 +16,7 @@ package_root = os.path.abspath('..')
 package_name = 'neutrinos_icecube'
 
 sys.path.insert(0, package_root)
-#sys.path.insert(0, os.path.join(package_root, package_name))
+sys.path.insert(0, os.path.join(package_root, package_name))
 
 
 # -- Project information -----------------------------------------------------
@@ -32,12 +32,12 @@ author = 'Gloria Cicconofri'
 extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc"]
 
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
 
 # The master toctree document.
-master_doc = 'index'
+#master_doc = 'index'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
