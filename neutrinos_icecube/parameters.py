@@ -2,15 +2,11 @@
 
     Args:
 
-    n_hits (int): number of hits per event
-
-    log_value (int): level of logging
-
-    graph_drawer (bool): flag that enables the graph drawer function
-
-    debug_value (bool): flag that defines whether to use the debugging function or not
-    
-    use_sliced_tensor (bool): flag that defines whether to use a sliced tensor instead of the whole file
+    :param int n_hits: number of hits per event.
+    :param int log_value: level of logging.
+    :param bool graph_drawer: flag that enables the graph drawer function.
+    :param bool debug_value: flag that defines whether to use the debugging function or not.
+    :param bool use_sliced_tensor: flag that defines whether to use a sliced tensor instead of the whole file.
 '''
 
 import logging
