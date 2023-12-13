@@ -1,7 +1,7 @@
 """ Creates and implements the model of the Graph Neural Network.
 
-Returns:
-    (Graph_Network): An istance of the class Graph_Network
+    Returns:
+        (Graph_Network): An istance of the class Graph_Network
 """
 
 import torch
@@ -18,6 +18,7 @@ import hyperparameters
 logger = setup_logging('model_log')
 
 def model_creator():
+
     """ Creates the model for the neural network
 
     Returns:
@@ -25,6 +26,7 @@ def model_creator():
     """
 
     class DNNLayer(MessagePassing):
+
         """
         Custom layer for the Graph Neural Network (GNN) that inherits from the Message Passing layer
         Args:
@@ -57,7 +59,8 @@ def model_creator():
             )
 
         def forward(self, h, edge_index):
-            """Performs a forward pass through the DNNLayer
+
+            """ Performs a forward pass through the DNNLayer.
 
             Args:
                 h (torch.Tensor): Node features
@@ -72,8 +75,9 @@ def model_creator():
             return h2
 
         def message(self, h_j, h_i):
+
             """ Defines the message to be propagated in the forward function.
-                The message is creating considering the EdgeConv concept
+                The message is creating considering the EdgeConv concept.
 
             
             Args:
@@ -88,8 +92,9 @@ def model_creator():
             return self.mlp(new_input)
 
     class Graph_Network(nn.Module):
+
         """
-        Implemention of the GNN
+        Implementation of the GNN.
         Args:
             None
         
@@ -117,15 +122,15 @@ def model_creator():
             self.output = nn.Linear(hyperparameters.N_features, 2)
 
         def forward(self, data):
-            """
-            performs a forward pass through the GNN model
+
+            """ Performs a forward pass through the GNN model.
             Args:
                 data (Data): Data that contains both the features and the targets
 
             Returns:
                 torch.Tensor: Output tensor after GNN processing
             """
-            
+
             x = data.x
             edge_index = data.edge_index
             logger.debug(f"shape before f1: {x.shape}")

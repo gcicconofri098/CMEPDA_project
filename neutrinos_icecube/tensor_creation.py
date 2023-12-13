@@ -17,7 +17,8 @@ from logging_conf import setup_logging
 logger = setup_logging('tensor_creation')
 
 def tensor_creator(df, targets, **kwargs):
-    """ Takes the pandas Dataframes and creates the torch Tensor for the GNN
+
+    """ Takes the pandas Dataframes and creates the torch Tensor for the GNN.
     Args:
         df (pandas.DataFrame): dataframe with the features
         targets (pandas.DataFrame): dataframe with the targets

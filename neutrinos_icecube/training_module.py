@@ -1,4 +1,4 @@
-""" Handles the training of the GNN
+""" Handles the training of the GNN.
 
 Returns:
     lists: List of the loss and RMSE for each epoch, for both training and test 
@@ -16,7 +16,8 @@ import hyperparameters
 logger = setup_logging('training_log')
 
 def training_function(model, custom_dataset_train, custom_dataset_test):
-    """ Trains the GNN
+
+    """ Trains the GNN.
 
     Args:
         model (_type_): Model defined for the GNN
@@ -50,7 +51,8 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
 
 
     def root_mean_squared_error(y_true, y_pred):
-        """Definition of RMSE
+
+        """ Defines the RMSE.
         Args:
             y_true (torch.tensor): truth values for azimuth and zenith
             y_pred (torch.tensor): predicted values for azimuth and zenith
@@ -76,14 +78,18 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     def train(model, optimizer, loader):
-        """Training function
+
+        """ Training function.
         Args:
-            model (_type_): _description_
-            optimizer (_type_): _description_
+            model (Graph_Network): istance of the class Graph_Network
+            optimizer (torch.optim.Adam): optimizer used in the training
             loader (Dataset): training dataset
 
         Returns:
-            _type_: _description_
+            average_loss, average_rmse (float, float): average loss and RMSE through the epoch.
+            
+            batch_train_loss, batch_train_rmse (list, list): if in debug mode, list of loss and RMSE
+                through the epoch, not mediated. 
         """
 
         logger.debug(len(loader))
@@ -139,7 +145,9 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
             return average_loss, average_rmse
 
     def evaluate(model, loader):
-        """Function for validation
+
+        """ Function for validation.
+
         Args:
             model (_type_): _description_
             loader (Dataset): test dataset

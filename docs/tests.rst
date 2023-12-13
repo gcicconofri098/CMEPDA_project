@@ -12,10 +12,3 @@ tests.module\_test module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: tests
-   :members:
-   :undoc-members:
-   :show-inheritance:

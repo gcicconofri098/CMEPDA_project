@@ -26,7 +26,7 @@ def angular_dist_score(y_true, y_pred):
     y_pred: output tensor from the neural network
 
     Returns:
-        _type_: _description_
+        loss (torch.tensor): loss value for the batch
     """
 
     logger.debug(y_true.shape)

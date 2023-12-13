@@ -1,8 +1,9 @@
-"""This module handles the creation and processing of the pandas DataFrames 
+""" This module handles the creation and processing of the pandas DataFrames.
 
 Returns:
     (pandas.DataFrame, pandas.DataFrame): pandas.DataFrame of the features and the targets
 """
+
 import pandas as pd
 import numpy as np
 
@@ -13,6 +14,7 @@ from logging_conf import setup_logging
 logger = setup_logging('dataframe_creation')
 
 def dataset_skimmer(df):
+
     """ Prepares the dataset for padding operation.
 
     Args:
@@ -64,6 +66,7 @@ def dataset_skimmer(df):
     return df_with_geom2
 
 def padding_function(df_with_geom):
+
     """ Adds a zero-padding to take into account the different number of hits per event
 
     Args:
@@ -142,6 +145,7 @@ def padding_function(df_with_geom):
     return df_final
 
 def unstacker(df_final):
+
     """ Creates a dataframe where each row contains one event
     Args:
         df_final (pandas Dataframe): dataframe containing one hit per row
@@ -161,6 +165,7 @@ def unstacker(df_final):
     return df_final1
 
 def targets_definer(df_final, targets):
+    
     """ Creates a dataframe that contains the targets for each event
     Args:
         df_final (pandas Dataframe): feature dataframe from which the event IDs are taken
@@ -168,7 +173,7 @@ def targets_definer(df_final, targets):
     Returns:
         pandas Dataframe: dataframe with azimuth and zenith for each event
     """
-    
+
     #the dataset contains information on all the datasets, 
     # so targets for the events considered need to be extracted
 
