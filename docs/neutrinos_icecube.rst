@@ -92,10 +92,3 @@ neutrinos\_icecube.trajectory\_prediction module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: neutrinos_icecube
-   :members:
-   :undoc-members:
-   :show-inheritance:
