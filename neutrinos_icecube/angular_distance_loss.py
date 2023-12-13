@@ -6,8 +6,7 @@ from logging_conf import setup_logging
 logger = setup_logging('custom_loss')
 
 def angular_dist_score(y_true, y_pred):
-    """
-    calculate the MAE of the angular distance between two directions.
+    """Calculate the MAE of the angular distance between two directions.
     The two vectors are first converted to cartesian unit vectors,
     and then their scalar product is computed, which is equal to
     the cosine of the angle between the two vectors. The inverse
