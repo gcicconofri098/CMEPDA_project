@@ -6,6 +6,7 @@ from torch_geometric.loader import DataLoader
 from angular_distance_loss import angular_dist_score
 from logging_conf import setup_logging
 import parameters
+import hyperparameters
 
 logger = setup_logging('training_log')
 
@@ -40,7 +41,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
                     return True
             return False
 
-    early_stopper = EarlyStopper(patience=5, min_delta=0.0003)
+    early_stopper = EarlyStopper(patience=hyperparameters.patience, min_delta=hyperparameters.min_delta)
 
 
     def root_mean_squared_error(y_true, y_pred):

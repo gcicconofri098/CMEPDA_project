@@ -1,6 +1,7 @@
-"""This module handles the logging part of the package
-It sets the log path for all the modules, and the global level of logging
+"""This module handles the logging part of the package.
+It sets the log path for all the modules, and the global level of logging.
 """
+
 import logging
 import sys
 import parameters
@@ -8,10 +9,9 @@ import parameters
 LOG_PATH= '/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/logs/'
 
 def setup_logging(log_filename):
+
     """ Sets up the logging settings.
         
-
-
     Args:
         log_filename (str): name of the log file for the specific module
 
