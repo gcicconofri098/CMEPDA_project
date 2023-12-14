@@ -1,6 +1,7 @@
 """ Handles the training of the GNN.
 
 Returns:
+
     lists: List of the loss and RMSE for each epoch, for both training and test 
 """
 
@@ -20,17 +21,21 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
     """ Trains the GNN.
 
     Args:
+
         model (_type_): Model defined for the GNN
         dataset_train (Dataset): Dataset used for the training
         dataset_test (Dataset): Dataset used for the test
 
     Returns:
+
         _type_: _description_
+    
     """
 
     class EarlyStopper:
-        """_summary_
-        """
+
+        """_summary_"""
+        
         def __init__(self, patience=1, min_delta=0):
             self.patience = patience
             self.min_delta = min_delta
@@ -53,12 +58,16 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
     def root_mean_squared_error(y_true, y_pred):
 
         """ Defines the RMSE.
+
         Args:
+
             y_true (torch.tensor): truth values for azimuth and zenith
             y_pred (torch.tensor): predicted values for azimuth and zenith
 
         Returns:
+
             float: RMSE calculated
+        
         """
 
         squared_diff = (y_true - y_pred) ** 2
@@ -80,16 +89,20 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
     def train(model, optimizer, loader):
 
         """ Training function.
+
         Args:
+
             model (Graph_Network): istance of the class Graph_Network
             optimizer (torch.optim.Adam): optimizer used in the training
             loader (Dataset): training dataset
 
         Returns:
+
             average_loss, average_rmse (float, float): average loss and RMSE through the epoch.
             
             batch_train_loss, batch_train_rmse (list, list): if in debug mode, list of loss and RMSE
                 through the epoch, not mediated. 
+
         """
 
         logger.debug(len(loader))
@@ -149,10 +162,12 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         """ Function for validation.
 
         Args:
+
             model (_type_): _description_
             loader (Dataset): test dataset
 
         Returns:
+        
             _type_: _description_
         """
 

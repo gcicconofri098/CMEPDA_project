@@ -17,7 +17,7 @@ def dataset_skimmer(df):
 
     """ Prepares the dataset for padding operation.
 
-    Args:
+    Arguments:
         df (pandas Dataframe): contains information on the event hits
 
 

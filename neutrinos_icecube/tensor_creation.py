@@ -1,6 +1,7 @@
 """ Creates the torch_geometric.Data for handling the graphs.
 
 Returns:
+
     list of torch_geometric.Data: List of Data, one for each event
 """
 
@@ -19,11 +20,15 @@ logger = setup_logging('tensor_creation')
 def tensor_creator(df, targets, **kwargs):
 
     """ Takes the pandas Dataframes and creates the torch Tensor for the GNN.
+
     Args:
+
         df (pandas.DataFrame): dataframe with the features
         targets (pandas.DataFrame): dataframe with the targets
         label (str): string that differentiates training and test samples for debugging
+
     Returns:
+
         data_list (list of torch_geometric.Data): a  list that contains Data 
     """
     

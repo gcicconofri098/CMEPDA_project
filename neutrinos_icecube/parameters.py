@@ -1,6 +1,6 @@
 ''' Contains the global parameters for the package (hyperparameters for the GNN are listed in another file).
 
-    Args:
+    Parameters:
 
         n_hits (int): number of hits per event.
         log_value (int): level of logging.

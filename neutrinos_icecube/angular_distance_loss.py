@@ -1,9 +1,11 @@
 """ Module that contains the custom loss proposed in the competition.
 
 Raises:
+
     ValueError: Raises an error if an infinite value is found.
 
 Returns:
+
     torch.Tensor: Loss value computed
 """
 
@@ -22,10 +24,12 @@ def angular_dist_score(y_true, y_pred):
     cosine (arccos) thereof is then the angle between the two input vectors
 
     Args:
+
     y_true: target tensor
     y_pred: output tensor from the neural network
 
     Returns:
+    
         loss (torch.tensor): loss value for the batch
     """
 

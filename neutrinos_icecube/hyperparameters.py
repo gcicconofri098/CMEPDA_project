@@ -1,6 +1,7 @@
 '''File that contains the chosen parameters for the Neural Network.
 
-    Args:
+    Parameters:
+    
         n_neighbors (int): number of neighbors for the knn_graph
         N_features (int): dimensionality of the hidden layers
         dropout_value (float): fraction of dropped connections for the dropout layer
