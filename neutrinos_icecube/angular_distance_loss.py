@@ -1,4 +1,6 @@
-""" Module that contains the custom loss proposed in the competition.
+""" 
+
+Module that contains the custom loss proposed in the competition.
 
 Raises:
 
@@ -7,6 +9,7 @@ Raises:
 Returns:
 
     torch.Tensor: Loss value computed
+    
 """
 
 import torch
@@ -29,7 +32,7 @@ def angular_dist_score(y_true, y_pred):
     y_pred: output tensor from the neural network
 
     Returns:
-    
+
         loss (torch.tensor): loss value for the batch
     """
 
