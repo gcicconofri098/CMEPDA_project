@@ -1,8 +1,10 @@
-""" This module handles the creation and processing of the pandas DataFrames.
+
+'''This module handles the creation and processing of the pandas DataFrames.
 
 Returns:
-    (pandas.DataFrame, pandas.DataFrame): pandas.DataFrame of the features and the targets
-"""
+
+    (pandas.DataFrame, pandas.DataFrame): pandas.DataFrame of the features and the targets.
+'''
 
 import pandas as pd
 import numpy as np
@@ -18,10 +20,12 @@ def dataset_skimmer(df):
     """ Prepares the dataset for padding operation.
 
     Arguments:
+
         df (pandas Dataframe): contains information on the event hits
 
 
     Returns:
+    
         pandas Dataframe: contains the skimmed hits for the events, with information on the geometry
     """
     
