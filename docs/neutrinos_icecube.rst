@@ -30,7 +30,7 @@ neutrinos\_icecube.hyperparameters module
    :show-inheritance:
 
 neutrinos\_icecube.logs.logging\_conf module
----------------------------------------
+---------------------------------------------
 
 .. automodule:: neutrinos_icecube.logs.logging_conf
    :members:
@@ -63,7 +63,7 @@ neutrinos\_icecube.parameters module
 
 
 neutrinos\_icecube.plots.graph\_visualizer module
----------------------------------------
+--------------------------------------------------
 
 .. automodule:: neutrinos_icecube.plots.graph_visualizer
    :members:
@@ -71,7 +71,7 @@ neutrinos\_icecube.plots.graph\_visualizer module
    :show-inheritance:
 
 neutrinos\_icecube.plots.plot\_detector\_geom module
----------------------------------------
+-----------------------------------------------------
 
 .. automodule:: neutrinos_icecube.plots.plot_detector_geom
    :members:
@@ -79,7 +79,7 @@ neutrinos\_icecube.plots.plot\_detector\_geom module
    :show-inheritance:
 
 neutrinos\_icecube.plots.plots\_loss_\and_\rmse module
----------------------------------------
+--------------------------------------------------------
 
 .. automodule:: neutrinos_icecube.plots.plots_loss_and_rmse
    :members:
