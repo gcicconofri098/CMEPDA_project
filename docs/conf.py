@@ -17,6 +17,8 @@ package_name = 'neutrinos_icecube'
 
 sys.path.insert(0, package_root)
 sys.path.insert(0, os.path.join(package_root, package_name))
+sys.path.insert(0, os.path.join(package_root, package_name, 'plots'))
+sys.path.insert(0, os.path.join(package_root, package_name, 'logs'))
 
 
 # -- Project information -----------------------------------------------------
