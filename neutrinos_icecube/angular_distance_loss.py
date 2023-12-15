@@ -1,15 +1,10 @@
-""" 
-
-Module that contains the custom loss proposed in the competition.
+"""Custom loss provided by the competition.
 
 Raises:
-
-    ValueError: Raises an error if an infinite value is found.
+    ValueError: Raises an error if an infinite values is found
 
 Returns:
-
-    torch.Tensor: Loss value computed
-    
+    torch.Tensor: Loss value
 """
 
 import torch
