@@ -16,9 +16,6 @@ Contacts:
 *********
 You can find me on g.cicconofri@studenti.unipi.it.
 
-.. autodoc:: angular_distance_loss.py
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
