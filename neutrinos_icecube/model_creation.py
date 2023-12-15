@@ -10,7 +10,7 @@ import torch_geometric
 import torch.nn as nn
 from torch_geometric.nn import MessagePassing
 
-from logging_conf import setup_logging
+from logs.logging_conf import setup_logging
 
 import parameters 
 import hyperparameters

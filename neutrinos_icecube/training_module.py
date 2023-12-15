@@ -10,7 +10,7 @@ import torch
 from torch_geometric.loader import DataLoader
 
 from angular_distance_loss import angular_dist_score
-from logging_conf import setup_logging
+from logs.logging_conf import setup_logging
 import parameters
 import hyperparameters
 

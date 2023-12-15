@@ -13,7 +13,7 @@ from torch_geometric.data import Data
 import parameters
 import hyperparameters
 from plots.graph_visualizer import graph_visualisation
-from logging_conf import setup_logging
+from logs.logging_conf import setup_logging
 
 logger = setup_logging('tensor_creation')
 

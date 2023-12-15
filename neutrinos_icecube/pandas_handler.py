@@ -11,7 +11,7 @@ import numpy as np
 
 import parameters
 
-from logging_conf import setup_logging
+from logs.logging_conf import setup_logging
 
 logger = setup_logging('dataframe_creation')
 

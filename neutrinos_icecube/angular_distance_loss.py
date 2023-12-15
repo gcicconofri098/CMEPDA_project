@@ -9,7 +9,7 @@ Returns:
 
 import torch
 import numpy as np
-from logging_conf import setup_logging
+from logs.logging_conf import setup_logging
 
 logger = setup_logging('custom_loss')
 

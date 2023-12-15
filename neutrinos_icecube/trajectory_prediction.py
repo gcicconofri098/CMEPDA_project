@@ -14,7 +14,7 @@ from training_module import training_function
 from plots.plots_loss_and_rmse import single_batch_loss_plots, loss_plots
 from dataset_for_training import dataset_creator
 import parameters as parameters
-from logging_conf import setup_logging
+from logs.logging_conf import setup_logging
 
 logger = setup_logging('main_log')
 
