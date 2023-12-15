@@ -21,12 +21,12 @@ def setup_logging(log_filename):
 
     logging.basicConfig(level= parameters.log_value)
     logger = logging.getLogger(log_filename)
-    file_handler=logging.FileHandler(LOG_PATH + log_filename + '.log')
+    #file_handler=logging.FileHandler(LOG_PATH + log_filename + '.log')
 
-    logger.addHandler(file_handler)
+    #logger.addHandler(file_handler)
     #logger.addHandler(logging.StreamHandler(sys.stdout))
     logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
 
-    print(file_handler.path)
+    #print(file_handler.path)
 
     return logger
