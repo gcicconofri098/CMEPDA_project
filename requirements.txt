@@ -1,7 +1,7 @@
 numpy>=1.21.6
-torch
-torch-geometric
+torch>=2.0.0
 torch-cluster
+torch-geometric
 sphinx==7.2.6
 sphinx_rtd_theme==2.0.0
 pandas==1.5.3
