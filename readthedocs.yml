@@ -32,4 +32,5 @@ sphinx:
 # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
 python:
   install:
-    - requirements: requirements.txt
+    - requirements: pip install torch==2.1.2
+      extra_requirements: requirements.txt
