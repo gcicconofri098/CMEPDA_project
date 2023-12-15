@@ -27,5 +27,6 @@ def setup_logging(log_filename):
     #logger.addHandler(logging.StreamHandler(sys.stdout))
     logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
 
+    print(file_handler.path)
 
     return logger
