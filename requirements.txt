@@ -1,2 +1,4 @@
 sphinx==7.2.6
 sphinx_rtd_theme==2.0.0
+six>=1.5.2
+pockets>=0.3
