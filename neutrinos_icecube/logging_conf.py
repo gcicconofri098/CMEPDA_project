@@ -6,7 +6,7 @@ import logging
 import sys
 import parameters
 
-LOG_PATH= '/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/logs/'
+LOG_PATH= '../logs/'
 
 def setup_logging(log_filename):
 
