@@ -1,4 +1,4 @@
-pytorch==2.1.1
+torch==2.1.1
 torch-geometric==2.4.0
 torch-cluster==1.6.3
 sphinx==7.2.6
