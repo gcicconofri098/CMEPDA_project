@@ -1,4 +1,5 @@
 numpy>=1.21.6
+torch>=2.0.0
 torch-cluster
 torch-geometric
 sphinx==7.2.6
