@@ -1,6 +1,6 @@
 numpy>=1.21.6
 torch>=2.0.0
-torch-cluster==1.6.2 https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_cluster-1.6.2%2Bpt21cu118-cp310-cp310-linux_x86_64.whl
+torch-cluster==1.6.2 @ https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_cluster-1.6.2%2Bpt21cu118-cp310-cp310-linux_x86_64.whl
 torch-geometric
 sphinx==7.2.6
 sphinx_rtd_theme==2.0.0
