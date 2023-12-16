@@ -1,6 +1,14 @@
 neutrinos\_icecube package
 ==========================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   neutrinos_icecube.logs
+
 Submodules
 ----------
 
@@ -10,7 +18,6 @@ Submodules
    neutrinos_icecube.angular_distance_loss
    neutrinos_icecube.dataset_for_training
    neutrinos_icecube.hyperparameters
-   neutrinos_icecube.logging_conf
    neutrinos_icecube.model_creation
    neutrinos_icecube.pandas_handler
    neutrinos_icecube.parameters
