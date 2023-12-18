@@ -11,6 +11,9 @@ __pycache__/
 *.png
 for_reshape.py
 subset.py
+datasets/batch_1.parquet
+datasets/sensor_geometry.csv
+datasets/train_meta.parquet
 
 
 # Distribution / packaging
