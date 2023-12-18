@@ -14,7 +14,7 @@ subset.py
 datasets/batch_1.parquet
 datasets/sensor_geometry.csv
 datasets/train_meta.parquet
-
+datasets/batch_2.parquet
 
 # Distribution / packaging
 .Python

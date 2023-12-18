@@ -31,7 +31,7 @@ def dataset_skimmer(df):
     
     #loads the csv that contains information on the detector as a pandas dataframe
 
-    geometry = pd.read_csv("/scratchnvme/cicco/cmepda/sensor_geometry.csv")
+    geometry = pd.read_csv("datasets/sensor_geometry.csv")
 
     logger.debug(geometry) 
 

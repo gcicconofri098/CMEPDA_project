@@ -46,7 +46,7 @@ if __name__ == "__main__":
         device = torch.device("cpu")
 
 
-    DATA_PATH = "/scratchnvme/cicco/cmepda/"
+    DATA_PATH = "datasets/"
     DATA_FILES = [
         "batch_1.parquet",
         "batch_2.parquet",
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     for data_file in DATA_FILES:
         dataframe = pd.read_parquet(DATA_PATH + data_file).reset_index()
 
-        targets = pd.read_parquet("/scratchnvme/cicco/cmepda/train_meta.parquet")
+        targets = pd.read_parquet("datasets/train_meta.parquet")
 
         logger.info("creating the pandas dataframe")
 
