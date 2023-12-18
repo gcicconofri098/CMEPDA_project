@@ -11,10 +11,11 @@ __pycache__/
 *.png
 for_reshape.py
 subset.py
-datasets/batch_1.parquet
-datasets/sensor_geometry.csv
-datasets/train_meta.parquet
-datasets/batch_2.parquet
+batch_1.parquet
+sensor_geometry.csv
+train_meta.parquet
+batch_2.parquet
+
 
 # Distribution / packaging
 .Python

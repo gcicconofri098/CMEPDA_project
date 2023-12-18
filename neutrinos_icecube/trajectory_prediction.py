@@ -8,6 +8,7 @@ import torch
 from sklearn.model_selection import train_test_split
 
 from angular_distance_loss import angular_dist_score
+from datasets.sample_loader import sample_loader
 from pandas_handler import dataset_skimmer, padding_function, unstacker, targets_definer
 from model_creation import model_creator
 from tensor_creation import tensor_creator
@@ -59,13 +60,13 @@ if __name__ == "__main__":
     for data_file in DATA_FILES:
         try:
 
-            dataframe = pd.read_parquet(DATA_PATH + data_file).reset_index()
+            dataframe = sample_loader(flag='dataset')
 
-            targets = pd.read_parquet("datasets/train_meta.parquet")
+            targets_df = sample_loader(flag='targets')
         
         except OSError as e:
             print(f"dataset not found: {e}")
-            sys.exit(1)
+            pass
 
 
         logger.info("creating the pandas dataframe")
@@ -80,13 +81,13 @@ if __name__ == "__main__":
 
         logger.info("pandas dataframe have been unstacked")
 
-        targets = targets_definer(dataframe_final3, targets)
+        targets_dataframe = targets_definer(dataframe_final3, targets_df)
         
         logger.info("targets have been defined")
 
         combined_data = pd.concat([combined_data, dataframe_final3], ignore_index=False)
 
-        combined_res = pd.concat([combined_res, targets], ignore_index=False)
+        combined_res = pd.concat([combined_res, targets_dataframe], ignore_index=False)
 
     logger.debug(combined_data)
     logger.debug(combined_res)

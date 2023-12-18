@@ -12,7 +12,7 @@ import numpy as np
 import parameters
 
 from logs.logging_conf import setup_logging
-
+from datasets.sample_loader import sample_loader
 logger = setup_logging('dataframe_creation')
 
 def dataset_skimmer(df):
@@ -31,7 +31,7 @@ def dataset_skimmer(df):
     
     #loads the csv that contains information on the detector as a pandas dataframe
 
-    geometry = pd.read_csv("datasets/sensor_geometry.csv")
+    geometry = sample_loader(flag='geometry')
 
     logger.debug(geometry) 
 

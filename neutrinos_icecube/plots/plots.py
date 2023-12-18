@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from datasets.sample_loader import sample_loader
+
 np.set_printoptions(threshold=20)
 
 def spherical_to_cartesian(azimuth, zenith, r=600.0):
@@ -15,12 +17,10 @@ ev_id = 3266196
 
 try:
 
-    df = pd.read_parquet("datatasets/batch_1.parquet").reset_index()
-
-    geom = pd.read_csv("datatasets/sensor_geometry.csv").reset_index()
-
-    target = pd.read_parquet("datatasets/train_meta.parquet").reset_index()
-
+    df = sample_loader(flag= 'dataset')
+    geom = sample_loader(flag='geometry')
+    target = sample_loader(flag= 'targets')
+    
 except OSError as e:
     print(f"dataset not found: {e}")
     sys.exit(1)

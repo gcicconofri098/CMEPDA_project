@@ -1,17 +1,12 @@
-import sys
-import pandas as pd
 import matplotlib.pyplot as plt
 
-try:
-    df = pd.read_csv("datasets/sensor_geometry.csv")
-
-except OSError as e:
-    print(f"dataset not found: {e}")
-    sys.exit(1)
+from datasets.sample_loader import sample_loader
 
 
 fig = plt.figure()
 ax = fig.add_subplot(projection="3d")
+
+df=sample_loader(flag='geometry')
 
 ax.scatter(df["x"], df["y"], df["z"], s=1.5, linewidths=0)
 plt.show()

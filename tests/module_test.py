@@ -25,7 +25,7 @@ try:
 
 except OSError as e:
     print(f"dataset not found: {e}")
-    sys.exit(1)
+    pass
 
 
 class PandasTestModule(unittest.TestCase):
