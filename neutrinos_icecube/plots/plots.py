@@ -13,11 +13,11 @@ def spherical_to_cartesian(azimuth, zenith, r=600.0):
 
 ev_id = 3266196
 
-df = pd.read_parquet("/scratchnvme/cicco/cmepda/batch_1.parquet").reset_index()
+df = pd.read_parquet("datatasets/batch_1.parquet").reset_index()
 
-geom = pd.read_csv("/scratchnvme/cicco/cmepda/sensor_geometry.csv").reset_index()
+geom = pd.read_csv("datatasets/sensor_geometry.csv").reset_index()
 
-target = pd.read_parquet("/scratchnvme/cicco/cmepda/train_meta.parquet").reset_index()
+target = pd.read_parquet("datatasets/train_meta.parquet").reset_index()
 
 target1 = target[target['event_id']== ev_id]
 

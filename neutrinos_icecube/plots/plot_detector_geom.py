@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("/scratchnvme/cicco/cmepda/sensor_geometry.csv")
+df = pd.read_csv("datasets/sensor_geometry.csv")
 
 fig = plt.figure()
 ax = fig.add_subplot(projection="3d")

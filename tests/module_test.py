@@ -18,8 +18,8 @@ if not IS_TEST_LOCAL:
     targets = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/res_subset.parquet")
 
 else:
-    pandas_dataset = pd.read_parquet("/scratchnvme/cicco/cmepda/batch_1.parquet").reset_index(drop = True)
-    targets = pd.read_parquet("/scratchnvme/cicco/cmepda/train_meta.parquet")
+    pandas_dataset = pd.read_parquet("datasets/batch_1.parquet").reset_index(drop = True)
+    targets = pd.read_parquet("datasets/train_meta.parquet")
 
 class PandasTestModule(unittest.TestCase):
     """Class that checks that the pandas DataFrames have the correct shape
