@@ -1,5 +1,5 @@
 numpy>=1.21.6
-torch==2.1.0  --index-url https://download.pytorch.org/whl/cpu
+https://download.pytorch.org/whl/cu118/torch-2.1.0%2Bcu118-cp310-cp310-linux_x86_64.whl#sha256=a81b554184492005543ddc32e96469f9369d778dedd195d73bda9bed407d6589
 torch-geometric==2.4.0
 https://data.pyg.org/whl/torch-2.1.0%2Bcu118/torch_cluster-1.6.2%2Bpt21cu118-cp310-cp310-linux_x86_64.whl
 sphinx==7.2.6
