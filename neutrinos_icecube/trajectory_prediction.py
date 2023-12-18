@@ -1,6 +1,7 @@
 
 """ Main module. Predicts the trajectory of the observed particles."""
 
+import sys
 import pandas as pd
 import torch
 
@@ -56,9 +57,16 @@ if __name__ == "__main__":
     combined_res = pd.DataFrame()
 
     for data_file in DATA_FILES:
-        dataframe = pd.read_parquet(DATA_PATH + data_file).reset_index()
+        try:
 
-        targets = pd.read_parquet("datasets/train_meta.parquet")
+            dataframe = pd.read_parquet(DATA_PATH + data_file).reset_index()
+
+            targets = pd.read_parquet("datasets/train_meta.parquet")
+        
+        except OSError as e:
+            print(f"dataset not found: {e}")
+            sys.exit(1)
+
 
         logger.info("creating the pandas dataframe")
 

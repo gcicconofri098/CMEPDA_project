@@ -1,4 +1,4 @@
-#%%
+import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,11 +13,19 @@ def spherical_to_cartesian(azimuth, zenith, r=600.0):
 
 ev_id = 3266196
 
-df = pd.read_parquet("datatasets/batch_1.parquet").reset_index()
+try:
 
-geom = pd.read_csv("datatasets/sensor_geometry.csv").reset_index()
+    df = pd.read_parquet("datatasets/batch_1.parquet").reset_index()
 
-target = pd.read_parquet("datatasets/train_meta.parquet").reset_index()
+    geom = pd.read_csv("datatasets/sensor_geometry.csv").reset_index()
+
+    target = pd.read_parquet("datatasets/train_meta.parquet").reset_index()
+
+except OSError as e:
+    print(f"dataset not found: {e}")
+    sys.exit(1)
+
+
 
 target1 = target[target['event_id']== ev_id]
 
@@ -67,13 +75,5 @@ map = ax.scatter(a['x'].values, a['y'].values, a['z'].values, s = size.values, c
 #ax.legend()
 plt.colorbar(map, ax=ax)
 plt.show()
-#%%
 plt.savefig("event_display.png")
 plt.close()
-
-
-
-
-
-
-# %%

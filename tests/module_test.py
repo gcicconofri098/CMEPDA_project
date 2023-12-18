@@ -13,13 +13,20 @@ import parameters
 
 IS_TEST_LOCAL = False
 
-if not IS_TEST_LOCAL:
-    pandas_dataset = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/subset.parquet").reset_index(drop= True)
-    targets = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/res_subset.parquet")
+try:
 
-else:
-    pandas_dataset = pd.read_parquet("datasets/batch_1.parquet").reset_index(drop = True)
-    targets = pd.read_parquet("datasets/train_meta.parquet")
+    if not IS_TEST_LOCAL:
+        pandas_dataset = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/subset.parquet").reset_index(drop= True)
+        targets = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/res_subset.parquet")
+
+    else:
+        pandas_dataset = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/batch_1.parquet").reset_index(drop = True)
+        targets = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/train_meta.parquet")
+
+except OSError as e:
+    print(f"dataset not found: {e}")
+    sys.exit(1)
+
 
 class PandasTestModule(unittest.TestCase):
     """Class that checks that the pandas DataFrames have the correct shape
