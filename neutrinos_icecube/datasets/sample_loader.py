@@ -6,6 +6,7 @@ Returns:
 """
 
 from pathlib import Path
+import inspect
 import os
 import sys
 import pandas as pd
@@ -19,7 +20,7 @@ def sample_loader(flag):
 
     Args:
         flag (str): flag that defines which pandas.Dataframe has to be created.
-            Possible values are: dataset, targets and geometry. Any other values will raise an exception
+            Possible values are: dataset, targets and geometry. Any other values will raise an error
 
     Returns:
         df (pandas.DataFrame): pandas.Dataframe with either the features, the targets or the detector geometry
@@ -38,7 +39,39 @@ def sample_loader(flag):
             print("Flag passed is wrong")
             sys.exit(1)
     except OSError as e:
-        print(f"file not found: {e}")
+        calling_frame = inspect.stack()[1]
+        calling_module = inspect.getmodule(calling_frame[0]).__name__
+        calling_function = calling_frame.function
+        print(f"file not found while trying to create dataframe {flag} in function {calling_function} in module {calling_module}: {e}")
+        sys.exit(1)
+
+    return df
+
+def sample_loader_non_local_testing(flag):
+    """Function that creates the pandas.Dataframe to be run in the unit test
+
+    Args:
+        flag (str): flag that defines which pandas.Dataframe has to be created.
+            Possible values are: dataset, targets and geometry. Any other values will raise an error
+
+    Returns:
+        df (pandas.DataFrame): pandas.Dataframe with either the feature or the targets
+    """
+    try:
+        if str(flag) == 'dataset':
+            file_path = os.path.join(ROOT_PATH, 'subset.parquet')
+            df = pd.read_parquet(file_path).reset_index()
+        elif str(flag) == 'targets':
+            file_path = os.path.join(ROOT_PATH, 'res_subset.parquet')
+            df = pd.read_parquet(file_path).reset_index()
+        else:
+            print("Flag passed is wrong")
+            sys.exit(1)
+    except OSError as e:
+        calling_frame = inspect.stack()[1]
+        calling_module = inspect.getmodule(calling_frame[0]).__name__
+        calling_function = calling_frame.function
+        print(f"file not found while trying to create dataframe {flag} in function {calling_function} in module {calling_module}: {e}")
         sys.exit(1)
 
     return df

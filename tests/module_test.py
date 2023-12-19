@@ -9,6 +9,7 @@ sys.path.append('../neutrinos_icecube/')
 
 from pandas_handler import dataset_skimmer, padding_function, unstacker, targets_definer
 from tensor_creation import tensor_creator
+from datasets.sample_loader import sample_loader, sample_loader_non_local_testing
 import parameters
 
 IS_TEST_LOCAL = False
@@ -16,13 +17,12 @@ IS_TEST_LOCAL = False
 try:
 
     if not IS_TEST_LOCAL:
-        pandas_dataset = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/subset.parquet").reset_index(drop= True)
-        targets = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/res_subset.parquet")
+        pandas_dataset = sample_loader_non_local_testing(flag='dataset').reset_index(drop= True)
+        targets = sample_loader_non_local_testing(flag='targets')
 
     else:
-        pandas_dataset = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/batch_1.parquet").reset_index(drop = True)
-        targets = pd.read_parquet("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/datasets/train_meta.parquet")
-
+        pandas_dataset = sample_loader(flag='dataset').reset_index(drop = True)
+        targets = sample_loader(flag='targets')
 except OSError as e:
     print(f"dataset not found: {e}")
     pass
