@@ -54,7 +54,6 @@ plt.savefig("charge.png")
 plt.yscale('log')
 plt.close()
 
-#%%
 target_x1, target_y1, target_z1 = spherical_to_cartesian(target1['azimuth'], target1['zenith'])
 target_x2, target_y2, target_z2 = spherical_to_cartesian(target1['azimuth']+np.pi,target1['zenith'])
 

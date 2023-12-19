@@ -86,10 +86,10 @@ neutrinos\_icecube.plots.plots\_loss_\and_\rmse module
    :undoc-members:
    :show-inheritance:
 
-neutrinos\_icecube.plots.plots module
----------------------------------------
+neutrinos\_icecube.plots.features\_plots module
+------------------------------------------------
 
-.. automodule:: neutrinos_icecube.plots.plots
+.. automodule:: neutrinos_icecube.plots.features_plots
    :members:
    :undoc-members:
    :show-inheritance:
