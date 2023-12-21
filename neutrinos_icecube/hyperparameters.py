@@ -9,9 +9,11 @@
         min_delta (float): value of the validation loss difference between two epochs
 '''
 
-n_neighbors = 7
-N_features = 40
+n_neighbors = 8
+N_features = 45
 dropout_value = 0.1
+learning_rate = 0.001
+number_epochs = 190
 
 #Early stopping
 

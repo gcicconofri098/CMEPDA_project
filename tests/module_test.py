@@ -14,18 +14,12 @@ import parameters
 
 IS_TEST_LOCAL = False
 
-try:
-
-    if not IS_TEST_LOCAL:
-        pandas_dataset = sample_loader_non_local_testing(flag='dataset').reset_index(drop= True)
-        targets = sample_loader_non_local_testing(flag='targets')
-
-    else:
-        pandas_dataset = sample_loader(flag='dataset').reset_index(drop = True)
-        targets = sample_loader(flag='targets')
-except OSError as e:
-    print(f"dataset not found: {e}")
-    pass
+if not IS_TEST_LOCAL:
+    pandas_dataset = sample_loader_non_local_testing(flag='dataset').reset_index(drop= True)
+    targets = sample_loader_non_local_testing(flag='targets')
+else:
+    pandas_dataset = sample_loader(flag='dataset').reset_index(drop = True)
+    targets = sample_loader(flag='targets')
 
 
 class PandasTestModule(unittest.TestCase):

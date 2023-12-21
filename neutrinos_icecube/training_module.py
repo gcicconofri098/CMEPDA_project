@@ -84,7 +84,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
     # print(type(batch))
     # print(batch.batch)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=hyperparameters.learning_rate)
 
     def train(model, optimizer, loader):
 
@@ -229,9 +229,9 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
     train_rmses = []
     test_rmses = []
 
-    number_of_epochs = 2 if parameters.debug_value else 191
+    number_of_epochs = 1 if parameters.debug_value else hyperparameters.number_epochs
 
-    for epoch in range(1, number_of_epochs):
+    for epoch in range(1, number_of_epochs +1):
 
         train_loss, train_rmse = train(model, optimizer, train_loader)
         test_loss, test_rmse = evaluate(model, test_loader)

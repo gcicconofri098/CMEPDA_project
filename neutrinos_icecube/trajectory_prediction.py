@@ -51,7 +51,7 @@ if __name__ == "__main__":
     DATA_PATH = "datasets/"
     DATA_FILES = [
         "batch_1.parquet",
-        "batch_2.parquet",
+        #"batch_2.parquet",
         ]
 
     combined_data = pd.DataFrame()

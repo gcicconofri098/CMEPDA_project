@@ -49,7 +49,6 @@ def model_creator():
             self.mlp = nn.Sequential(
                 nn.Linear(2 * in_channels, out_channels),
                 nn.ReLU(),
-                nn.Dropout(p=hyperparameters.dropout_value),
                 nn.Linear(out_channels, out_channels),
             )
             self.simpler_mlp = nn.Sequential(
@@ -116,8 +115,11 @@ def model_creator():
             self.f3 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
             self.f4 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
             self.f5 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
+            self.f6 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
 
             self.global_pooling = torch_geometric.nn.global_mean_pool
+
+            self.dropout = nn.Dropout(p=hyperparameters.dropout_value)
 
             self.output = nn.Linear(hyperparameters.N_features, 2)
 
@@ -136,34 +138,50 @@ def model_creator():
             logger.debug(f"shape before f1: {x.shape}")
 
             h = self.f1(h=x, edge_index=edge_index)
+            h = self.dropout(h)
             logger.debug(f"shape after f1: {h.shape}")
 
             h = h.relu()
             logger.debug(f"shape after relu1: {h.shape}")
 
             h = self.f2(h=h, edge_index=edge_index)
+            h = self.dropout(h)
+
             logger.debug(f"shape after f2: {h.shape}")
 
             h = h.relu()
             logger.debug(f"shape after relu2: {h.shape}")
 
             h = self.f3(h=h, edge_index=edge_index)
+            h = self.dropout(h)
+
             logger.debug(f"shape after f3: {h.shape}")
 
             h = h.relu()
             logger.debug(f"shape after relu3: {h.shape}")
 
             h = self.f4(h=h, edge_index= edge_index)
+            h = self.dropout(h)
+
             logger.debug(f"shape after f4: {h.shape}")
 
             h = h.relu()
             logger.debug(f"shape after relu4: {h.shape}")
 
             h = self.f5(h=h, edge_index= edge_index)
+            h = self.dropout(h)
+
             logger.debug(f"shape after f5: {h.shape}")
 
             h = h.relu()
             logger.debug(f"shape after relu5: {h.shape}")
+
+            # h = self.f6(h=h, edge_index= edge_index)
+            # h = self.dropout(h)
+            # logger.debug(f"shape after f6: {h.shape}")
+
+            # h = h.relu()
+            # logger.debug(f"shape after relu6: {h.shape}")
 
             h = self.global_pooling(h, data.batch)
 
