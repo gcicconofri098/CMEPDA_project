@@ -2,6 +2,8 @@
     <img src='https://readthedocs.org/projects/neutrinos-icecube/badge/?version=latest' alt='Documentation Status' />
 </a>
 
+[![Unit tests](https://github.com/gcicconofri098/CMEPDA_project/actions/workflows/unittest.yml/badge.svg)](https://github.com/gcicconofri098/CMEPDA_project/actions/workflows/unittest.yml)
+
 # CMEPDA_project
 Repository for the project for the CMEPDA exam. The project consists of studying the IceCube experiment Monte Carlo simulations, particularly on predicting the original trajectory of the simulated particles using Machine Learning (ML) techniques.
 
