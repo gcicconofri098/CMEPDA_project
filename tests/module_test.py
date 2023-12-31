@@ -23,13 +23,7 @@ else:
 
 
 class PandasTestModule(unittest.TestCase):
-    """Class that checks that the pandas DataFrames have the correct shape
-
-    Args:
-        None
-
-    Methods:
-
+    """Class that checks that the pandas DataFrames have the correct shape.
     """
     
     def setup(self):
@@ -37,9 +31,16 @@ class PandasTestModule(unittest.TestCase):
         logging.disable(logging.CRITICAL)
         
     def test_dataframe_shape(self):
-        """Checks that the pandas dataframe after the skimming has the correct shape. #! RISCRIVI
-           The expected shape is, at the end of the skimming, (n_rows,6)
-           The number of rows depends on the cut on the maximum number of hits requested
+        """Checks that the pandas dataframes have the correct shape after the processing.
+           The expected shape after the skimming is (n_rows,8).
+           n_rows is not known, because it depends on the number of hits per event
+           The expected shape after applying the padding is (expected_rows, 5), 
+           where expected rows is the number of events times the number of hits set with the
+           parameter n_hits.
+           The expected shape after unstacking is (n_events, expected_features), 
+           where expected_features is the number of features per hit times the number of hits.
+           The expected shape for the target dataframe is (n_events, 3)
+
         """
 
         n_events = len(pd.unique(pandas_dataset.event_id))
@@ -78,11 +79,11 @@ class PandasTestModule(unittest.TestCase):
 
 class TorchTensorTestModule(unittest.TestCase):
 
-    """Class that checks that the torch Tensor is correctly created
+    """Class that checks that the torch-geometric.Data is correctly created
     """
 
     def initialisation(self):
-        """Initialises the pandas tensor that will be used to test the module that creates the torch tensors
+        """Initialises the pandas dataframes that will be used to test the module that creates the torch tensors
         """
         skimmed_dataset = dataset_skimmer(pandas_dataset)
         padded_df = padding_function(skimmed_dataset)
@@ -94,6 +95,10 @@ class TorchTensorTestModule(unittest.TestCase):
     def test_tensor_shape(self):
         """ Creates the list of torch_geometric.Data, then takes a casual element of the list and checks that
             the shapes are the ones expected and that the connections inside the graph are actually made.
+            The expected shape for Data.x is (actual_n_hits, 6)
+            where actual_n_hits is the number of hits per event without padding (maximum is n_hìts).
+            The expected shape for Data.y is (1,2).
+            For the edge indexes, only the request that the connection are made is done.
         """
         df, targets_df = self.initialisation()
 

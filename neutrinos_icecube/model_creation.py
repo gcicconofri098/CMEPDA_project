@@ -22,7 +22,7 @@ def model_creator():
     """ Creates the model for the neural network
 
     Returns:
-        _type_: model of the neural network
+        graph_model (Graph_Network): model of the neural network
     """
 
     class DNNLayer(MessagePassing):

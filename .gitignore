@@ -8,6 +8,7 @@ __pycache__/
 
 #my stuff
 *.pkl
+*.pickle
 *.png
 for_reshape.py
 subset.py
@@ -15,6 +16,8 @@ batch_1.parquet
 sensor_geometry.csv
 train_meta.parquet
 batch_2.parquet
+
+saved_models
 
 
 # Distribution / packaging

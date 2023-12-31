@@ -23,12 +23,12 @@ def angular_dist_score(y_true, y_pred):
 
     Args:
 
-    y_true: target tensor
-    y_pred: output tensor from the neural network
+    y_true (torch.Tensor): target tensor
+    y_pred (torch.Tensor): output tensor from the neural network
 
     Returns:
 
-        loss (torch.tensor): loss value for the batch
+        loss (torch.Tensor): loss value for the batch
     """
 
     logger.debug(y_true.shape)

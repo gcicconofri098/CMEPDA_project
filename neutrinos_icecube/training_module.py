@@ -4,7 +4,7 @@ Returns:
 
     lists: List of the loss and RMSE for each epoch, for both training and test 
 """
-
+import os
 import math
 import torch
 from torch_geometric.loader import DataLoader
@@ -16,13 +16,13 @@ import hyperparameters
 
 logger = setup_logging('training_log')
 
-def training_function(model, custom_dataset_train, custom_dataset_test):
+def training_function(model, custom_dataset_train, custom_dataset_val):
 
     """ Trains the GNN.
 
     Args:
 
-        model (_type_): Model defined for the GNN
+        model (Graph_Network): Istance of the class Graph_Network
         dataset_train (Dataset): Dataset used for the training
         dataset_test (Dataset): Dataset used for the test
 
@@ -34,7 +34,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
 
     class EarlyStopper:
 
-        """_summary_"""
+        """Implements the Early Stopping callback."""
         
         def __init__(self, patience=1, min_delta=0):
             self.patience = patience
@@ -66,7 +66,7 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
 
         Returns:
 
-            float: RMSE calculated
+            rmse (float): RMSE calculated
         
         """
 
@@ -75,16 +75,16 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         rmse = torch.sqrt(mean_squared_error)
         return rmse
 
-    loss_func = torch.nn.MSELoss()
+    loss_func = torch.nn.L1Loss()
 
     train_loader = DataLoader(custom_dataset_train, batch_size=512, shuffle=True)
-    test_loader = DataLoader(custom_dataset_test, batch_size=512, shuffle=True)
+    val_loader = DataLoader(custom_dataset_val, batch_size=512, shuffle=True)
 
     # for batch in train_loader:
     # print(type(batch))
     # print(batch.batch)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=hyperparameters.learning_rate)
+
 
     def train(model, optimizer, loader):
 
@@ -98,9 +98,9 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
 
         Returns:
 
-            average_loss, average_rmse (float, float): average loss and RMSE through the epoch.
+            average_loss, average_rmse (float, float): average training loss and training RMSE through the epoch.
             
-            batch_train_loss, batch_train_rmse (list, list): if in debug mode, list of loss and RMSE
+            batch_train_loss, batch_train_rmse (list, list): if in debug mode, list of training loss and training RMSE
                 through the epoch, not mediated. 
 
         """
@@ -121,31 +121,11 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
 
             #loss = angular_dist_score(data.y, output)
             loss = loss_func(output, data.y)
-            
-            # print(type(loss))
-            # if torch.isnan(loss).any:
-            #     print(f"NaN in training loss at batch: {batch_idx}")
-            #     print(f"Input is: {data}")
-            #     print(f"Outputs: {output}")
-            #     print(f'Loss tensor: {loss}')
 
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
             total_rmse += root_mean_squared_error(data.y, output).item()
-            # print(type(rmse))
-            # if math.isnan(rmse):
-            #     print(f"NaN in training RMSE at batch: {batch_idx}")
-            #     print(f"Input is: {data}")
-            #     print(f"Outputs: {output}")
-            #     print(f"RMSE: {rmse}")
-
-
-            # batch_average_loss = total_loss / len(loader)
-            # batch_average_rmse = total_rmse / len(loader)
-
-            # print("average training loss for each batch", loss.item())
-            # print("average training rmse for each batch", rmse)
 
             batch_train_loss.append(loss.item())
             batch_train_rmse.append(root_mean_squared_error(data.y, output).item())
@@ -162,21 +142,23 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         """ Function for validation.
 
         Args:
-
-            model (_type_): _description_
-            loader (Dataset): test dataset
+            model (Graph_Network): istance of the class Graph_Network
+            loader (Dataset): Validation dataset
 
         Returns:
         
-            _type_: _description_
+            average_loss, average_rmse (float, float): average validation loss and validation RMSE through the epoch.
+            
+            batch_train_loss, batch_train_rmse (list, list): if in debug mode, list of validation loss and validation RMSE
+                through the epoch, not mediated. 
         """
 
         model.eval()
         total_loss = 0.0
         total_rmse = 0.0
 
-        batch_test_loss = []
-        batch_test_rmse = []
+        batch_val_loss = []
+        batch_val_rmse = []
 
         logger.debug(len(loader))
 
@@ -184,84 +166,92 @@ def training_function(model, custom_dataset_train, custom_dataset_test):
         with torch.no_grad():
             for batch_idx, data in enumerate(loader):
                 output = model(data)
-                #loss = angular_dist_score(data.y, output)
-
-                # if torch.isnan(loss).any:
-                #     print(f"NaN in test loss at batch: {batch_idx}")
-                #     print(f"Input is: {data}")
-                #     print(f"Outputs: {output}")
-                #     print(f'Loss tensor: {loss}')
 
                 loss = loss_func(output, data.y)
                 total_loss += loss.item()
                 total_rmse += root_mean_squared_error(data.y, output).item()
 
-
-
-                # if math.isnan(rmse):
-                #     print(f"NaN in test RMSE at batch: {batch_idx}")
-                #     print(f"Input is: {data}")
-                #     print(f"Outputs: {output}")
-                #     print(f"RMSE: {rmse}")
-
-
-                # batch_average_loss = total_loss / len(loader)
-                # batch_average_rmse = total_rmse / len(loader)
-
-                # print("average test loss for each batch", loss.item())
-                # print("average test rmse for each batch", rmse)
-
-                batch_test_loss.append(loss.item())
-                batch_test_rmse.append(root_mean_squared_error(data.y, output).item())
+                batch_val_loss.append(loss.item())
+                batch_val_rmse.append(root_mean_squared_error(data.y, output).item())
 
 
         average_loss = total_loss / len(loader)
         average_rmse = total_rmse / len(loader)
 
         if parameters.debug_value:
-            return batch_test_loss, batch_test_rmse
+            return batch_val_loss, batch_val_rmse
         else:
             return average_loss, average_rmse
 
     train_losses = []
-    test_losses = []
+    val_losses = []
 
     train_rmses = []
-    test_rmses = []
+    val_rmses = []
 
     number_of_epochs = 1 if parameters.debug_value else hyperparameters.number_epochs
 
-    for epoch in range(1, number_of_epochs +1):
+    best_val_loss = float('inf')
+    best_model_weights = None
+    
+    best_lr = 0
+    for lr_grid in hyperparameters.learning_rate_grid:
 
-        train_loss, train_rmse = train(model, optimizer, train_loader)
-        test_loss, test_rmse = evaluate(model, test_loader)
-        #checks if either the loss function or the RMSE, both for training and validation, have NaN values,
-        #and stops the training if so
-        if (
-               math.isnan(train_loss)
-            or math.isnan(train_rmse)
-            or math.isinf(train_loss)
-            or math.isinf(train_rmse)
-            or math.isnan(test_loss)
-            or math.isnan(test_rmse)
-            or math.isinf(test_loss)
-            or math.isinf(test_rmse)
-        ):
-            print("Training stopped due to NaN or infinite values.")
-            break
+
+        for epoch in range(1, number_of_epochs +1):
+
+            current_loop_best_val_loss = float('inf')
+            current_loop_best_weights = None
+
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr_grid)
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience= 4)
+
+            train_loss, train_rmse = train(model, optimizer, train_loader)
+            val_loss, val_rmse = evaluate(model, val_loader)
+            
+            scheduler.step(val_loss)
+            #checks if either the loss function or the RMSE, both for training and validation, have NaN values,
+            #and stops the training if so
+            if (
+                math.isnan(train_loss)
+                or math.isnan(train_rmse)
+                or math.isinf(train_loss)
+                or math.isinf(train_rmse)
+                or math.isnan(val_loss)
+                or math.isnan(val_rmse)
+                or math.isinf(val_loss)
+                or math.isinf(val_rmse)
+            ):
+                print("Training stopped due to NaN or infinite values.")
+                break
+            
+            if val_loss < current_loop_best_val_loss:
+                current_loop_best_val_loss = val_loss
+                current_loop_best_weights = model.state_dict()
+                print(f"current best validation loss value is {current_loop_best_val_loss} for learning rate {lr_grid}")
+
+            if early_stopper.early_stop(val_loss):
+                logger.info("Stopping the training with early stopping")
+                break
+
+            val_losses.append(val_loss)
+            train_losses.append(train_loss)
+
+            val_rmses.append(val_rmse)
+            train_rmses.append(train_rmse)
+
+            logger.info(
+                    f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, Train RMSE: {train_rmse:.4f}, Validation RMSE: {val_rmse: .4f}"
+                )
         
-        if early_stopper.early_stop(test_loss):
-            logger.info("Stopping the training with early stopping")
-            break
+        if current_loop_best_val_loss < best_val_loss:
+            best_val_loss = current_loop_best_val_loss
+            best_model_weights = current_loop_best_weights
+            best_lr = lr_grid
+            best_lr_str = str(best_lr).replace(".", "_")
+            print(f"best value loss is {best_val_loss} with learning rate {lr_grid}")
+            selected_train_losses, selected_val_losses, selected_train_rmses, selected_val_rmses = train_losses, val_losses, train_rmses, val_rmses
+    
+    torch.save(best_model_weights, 'neutrinos_icecube/saved_models/model_lr_' + best_lr_str + 'early_stop_RLR_40_hits_5_DNN_50_loss_MAE_batch_512_dropout_simpler_mlp_knn_10.pth')
 
-        test_losses.append(test_loss)
-        train_losses.append(train_loss)
-
-        test_rmses.append(test_rmse)
-        train_rmses.append(train_rmse)
-
-        logger.info(
-                f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Train RMSE: {train_rmse:.4f}, Test RMSE: {test_rmse: .4f}"
-            )
-    return train_losses, test_losses, train_rmses, test_rmses
-
+    return selected_train_losses, selected_val_losses, selected_train_rmses, selected_val_rmses

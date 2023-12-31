@@ -74,10 +74,10 @@ def padding_function(df_with_geom):
     """ Adds a zero-padding to take into account the different number of hits per event
 
     Args:
-        df_with_geom (pandas Dataframe): dataframe with feature information
+        df_with_geom (pandas.Dataframe): dataframe with feature information
 
     Returns:
-        pandas Dataframe: dataframe with the same number of hit for each event
+        df_final (pandas.Dataframe): dataframe with the same number of hit for each event
     """
 
     # compute the number of hits per event
@@ -152,10 +152,10 @@ def unstacker(df_final):
 
     """ Creates a dataframe where each row contains one event
     Args:
-        df_final (pandas Dataframe): dataframe containing one hit per row
+        df_final (pandas.Dataframe): dataframe containing one hit per row
 
     Returns:
-        pandas Dataframe: dataframe containing one event per row
+        df_final1 (pandas.Dataframe): dataframe containing one event per row
     """
 
     logger.debug(df_final)
@@ -175,7 +175,7 @@ def targets_definer(df_final, targets):
         df_final (pandas Dataframe): feature dataframe from which the event IDs are taken
 
     Returns:
-        pandas Dataframe: dataframe with azimuth and zenith for each event
+        targets (pandas.Dataframe): dataframe with azimuth and zenith for each event
     """
 
     #the dataset contains information on all the datasets, 

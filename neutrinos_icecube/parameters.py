@@ -1,6 +1,6 @@
 ''' Contains the global parameters for the package (hyperparameters for the GNN are listed in another file).
 
-    Parameters:
+    Settable parameters:
 
         n_hits (int): number of hits per event.
         log_value (int): level of logging.
@@ -12,7 +12,7 @@
 import logging
 
 
-n_hits = 25
+n_hits = 40
 
 log_value = logging.INFO
 graph_drawer = False

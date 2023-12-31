@@ -2,7 +2,7 @@
 
 Returns:
     df (pandas.Dataframe): pandas.DataFrame with the features, the targets or the detector information 
-    depending on the flag apassed
+    depending on the flag passed
 """
 
 from pathlib import Path

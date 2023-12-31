@@ -1,10 +1,12 @@
 
-""" Main module. Predicts the trajectory of the observed particles."""
+""" Main module. Predicts the trajectory of the simulated neutrinos."""
 
 import sys
+import os
+from pathlib import Path
 import pandas as pd
 import torch
-
+import pickle
 from sklearn.model_selection import train_test_split
 
 from angular_distance_loss import angular_dist_score
@@ -48,77 +50,113 @@ if __name__ == "__main__":
         device = torch.device("cpu")
 
 
-    DATA_PATH = "datasets/"
-    DATA_FILES = [
-        "batch_1.parquet",
-        #"batch_2.parquet",
-        ]
+    DATA_PATH =os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets/')
+    print(DATA_PATH)
+    if os.path.isfile(DATA_PATH + 'data_train.pickle') == False or os.path.isfile(DATA_PATH + 'data_test.pickle') == False or os.path.isfile(DATA_PATH + 'data_val.pickle') == False:
 
-    combined_data = pd.DataFrame()
-    combined_res = pd.DataFrame()
+        print("some of the datasets were not created, creating the datasets")
 
-    for data_file in DATA_FILES:
-        try:
+        DATA_FILES = [
+            "batch_1.parquet",
+            #"batch_2.parquet",
+            ]
 
-            dataframe = sample_loader(flag='dataset')
+        combined_data = pd.DataFrame()
+        combined_res = pd.DataFrame()
 
-            targets_df = sample_loader(flag='targets')
+        for data_file in DATA_FILES:
+            try:
+
+                dataframe = sample_loader(flag='dataset')
+
+                targets_df = sample_loader(flag='targets')
+            
+            except OSError as e:
+                print(f"dataset not found: {e}")
+                pass
+
+
+            logger.info("creating the pandas dataframe")
+
+            dataframe_final = dataset_skimmer(dataframe)
+
+            dataframe_final1 = padding_function(dataframe_final)
+
+            dataframe_final3 = unstacker(dataframe_final1)
+
+            logger.debug(dataframe_final3)
+
+            logger.info("pandas dataframe have been unstacked")
+
+            targets_dataframe = targets_definer(dataframe_final3, targets_df)
+            
+            logger.info("targets have been defined")
+
+            combined_data = pd.concat([combined_data, dataframe_final3], ignore_index=False)
+
+            combined_res = pd.concat([combined_res, targets_dataframe], ignore_index=False)
+
+        logger.debug(combined_data)
+        logger.debug(combined_res)
+
+        logger.info("creating the model")
+
+        logger.info("splitting the dataset")
+
+        #splits the dataset into training and test 
+        X_train, X_temp, Y_train, Y_temp = train_test_split(
+            combined_data, combined_res, test_size=0.4, random_state=42
+        )
+
+        X_val, X_test, Y_val, Y_test = train_test_split(X_temp, Y_temp, test_size=0.5, random_state=42)
+
+        logger.debug("printing tensor shape")
+        logger.debug(f"X_train tensor: {X_train.shape}")
+        logger.debug(f"Y_train tensor: {Y_train.shape}")
+
+        logger.info("creating the train torch tensor")
+
+        if parameters.use_sliced_tensor:
+
+            torch_tensor_train = tensor_creator(X_train, Y_train, label="train")
+        else: 
+            torch_tensor_train = tensor_creator(X_train, Y_train)
+
+        logger.info("creating the validation tensor")
+
+        if parameters.use_sliced_tensor:
+
+            torch_tensor_val = tensor_creator(X_val, Y_val, label="val")
+        else:
+            torch_tensor_val = tensor_creator(X_val, Y_val)
+
+        logger.info("creating the test torch tensor")
+        if parameters.use_sliced_tensor:
+
+            torch_tensor_test = tensor_creator(X_test, Y_test, label="test")
+        else:
+            torch_tensor_test = tensor_creator(X_test, Y_test)
         
-        except OSError as e:
-            print(f"dataset not found: {e}")
-            pass
+        with open(DATA_PATH +'data_train.pickle', 'xb') as output_train:
+            pickle.dump(torch_tensor_train, output_train)
 
-
-        logger.info("creating the pandas dataframe")
-
-        dataframe_final = dataset_skimmer(dataframe)
-
-        dataframe_final1 = padding_function(dataframe_final)
-
-        dataframe_final3 = unstacker(dataframe_final1)
-
-        logger.debug(dataframe_final3)
-
-        logger.info("pandas dataframe have been unstacked")
-
-        targets_dataframe = targets_definer(dataframe_final3, targets_df)
+        with open(DATA_PATH + 'data_val.pickle', 'xb') as output_val:
+            pickle.dump(torch_tensor_val, output_val)
         
-        logger.info("targets have been defined")
+        with open(DATA_PATH + 'data_test.pickle', 'xb') as output_test:
+            pickle.dump(torch_tensor_test, output_test)
+        
+        print("created the datasets, proceding with the training")
 
-        combined_data = pd.concat([combined_data, dataframe_final3], ignore_index=False)
+    print("opening the datasets")
 
-        combined_res = pd.concat([combined_res, targets_dataframe], ignore_index=False)
-
-    logger.debug(combined_data)
-    logger.debug(combined_res)
-
-    logger.info("creating the model")
-
-    logger.info("splitting the dataset")
-
-    #splits the dataset into training and test 
-    X_train, X_test, Y_train, Y_test = train_test_split(
-        combined_data, combined_res, test_size=0.3, random_state=42
-    )
-
-    logger.debug("printing tensor shape")
-    logger.debug(f"X_train tensor: {X_train.shape}")
-    logger.debug(f"Y_train tensor: {Y_train.shape}")
-
-    logger.info("creating the train torch tensor")
-
-    if parameters.use_sliced_tensor:
-
-        tensor_train = tensor_creator(X_train, Y_train, "train")
-    else: 
-        tensor_train = tensor_creator(X_train, Y_train)
-
-    logger.info("creating the test torch tensor")
-    if parameters.use_sliced_tensor:
-
-        tensor_test = tensor_creator(X_test, Y_test, "test")
-    else:
-        tensor_test = tensor_creator(X_test, Y_test)
+    with open(DATA_PATH + 'data_train.pickle', 'rb') as data_train:
+        
+        tensor_train = pickle.load(data_train)
+    
+    with open(DATA_PATH + 'data_val.pickle', 'rb') as data_val:
+        
+        tensor_val = pickle.load(data_val)
 
     logger.info("creating the model")
 
@@ -126,14 +164,14 @@ if __name__ == "__main__":
 
     logger.info("creating the data tensors")
 
-    dataset_train, dataset_test = dataset_creator(tensor_train, tensor_test)
+    dataset_train, dataset_val = dataset_creator(tensor_train, tensor_val)
 
     logger.info("starting the training")
 
-    train_losses, test_losses, train_rmses, test_rmses = training_function(model, dataset_train, dataset_test)
+    train_losses, val_losses, train_rmses, val_rmses = training_function(model, dataset_train, dataset_val)
 
     if not parameters.debug_value:
-        loss_plots(train_losses, test_losses, train_rmses, test_rmses)
+        loss_plots(train_losses, val_losses, train_rmses, val_rmses)
     else:
-        single_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses)
+        single_batch_loss_plots(train_losses, val_losses, train_rmses, val_rmses)
 

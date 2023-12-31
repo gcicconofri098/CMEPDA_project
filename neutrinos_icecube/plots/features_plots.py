@@ -1,3 +1,8 @@
+""" Plots a visualisation of an event.
+    The time propagation is shown with the color palette, the size of each hit is proportional
+    to the deposited charge
+"""
+
 import sys
 import pandas as pd
 import numpy as np

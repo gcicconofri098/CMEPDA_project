@@ -1,7 +1,8 @@
+""" Module that plots a visualisation of the graph created with the module tensor_creation
+"""
 import matplotlib.pyplot as plt
 import torch_geometric
 import networkx as nx
-
 
 
 def graph_visualisation(data, event_id, label):
