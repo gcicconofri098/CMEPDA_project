@@ -12,7 +12,7 @@
 
 n_neighbors = 10
 N_features = 50
-N_layers = 5 #doesn't actually do anything, just a placeholder
+N_layers = 4 #doesn't actually do anything, just a placeholder
 dropout_value = 0.1
 learning_rate = 0.0005
 number_epochs = 190

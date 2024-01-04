@@ -202,7 +202,7 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
         current_loop_best_weights = None
         early_stopper = EarlyStopper(patience=hyperparameters.patience, min_delta=hyperparameters.min_delta)
         optimizer = torch.optim.Adam(model.parameters(), lr=lr_grid)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience= 4)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience= 7)
 
         for epoch in range(1, number_of_epochs +1):
 
@@ -254,6 +254,8 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
             print(f"best value loss is {best_val_loss} with learning rate {lr_grid}")
             selected_train_losses, selected_val_losses, selected_train_rmses, selected_val_rmses = train_losses, val_losses, train_rmses, val_rmses
     
+    print(f"final best value loss is {best_val_loss} with learning rate {best_lr}")
+
     torch.save(best_model_weights, 'neutrinos_icecube/saved_models/model_lr_' + best_lr_str + 'early_stop_RLR_'+ str(parameters.n_hits)+'_hits_'+str(hyperparameters.N_layers) +'DNN_ '+str(hyperparameters.N_features) +'_loss_MAE_batch_ '+str(hyperparameters.batch_size) + '_dropout_simpler_mlp_knn_' + str(hyperparameters.n_neighbors) +'.pth')
 
     return selected_train_losses, selected_val_losses, selected_train_rmses, selected_val_rmses, best_lr

@@ -12,7 +12,7 @@
 import logging
 
 
-n_hits = 100
+n_hits = 40
 
 log_value = logging.INFO
 graph_drawer = False

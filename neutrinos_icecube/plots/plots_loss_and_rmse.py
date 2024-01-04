@@ -36,12 +36,17 @@ def single_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses):
 
 def loss_plots(train_losses, test_losses, train_rmses, test_rmses, learning_rate): #aggiungi come argomento il miglior lr
 
+    sliced_test_losses = test_losses[1:]
+    sliced_train_losses = train_losses[1:]
+    sliced_test_rmses = test_rmses[1:]
+    sliced_train_rmses = train_rmses[1:]
+
 
     #plots the loss and RMSE for all the epochs
     plt.figure(figsize=(10, 5))
     plt.title("Training and Validation Loss")
-    plt.plot(test_losses, label="val")
-    plt.plot(train_losses, label="train")
+    plt.plot(sliced_test_losses, label="val")
+    plt.plot(sliced_train_losses, label="train")
     plt.xlabel("iterations")
     plt.ylabel("Loss")
     plt.legend()
@@ -53,8 +58,8 @@ def loss_plots(train_losses, test_losses, train_rmses, test_rmses, learning_rate
 
     plt.figure(figsize=(10, 5))
     plt.title("Training and Validation RMSE")
-    plt.plot(test_rmses, label="val")
-    plt.plot(train_rmses, label="train")
+    plt.plot(sliced_test_rmses, label="val")
+    plt.plot(sliced_train_rmses, label="train")
     plt.xlabel("iterations")
     plt.ylabel("Loss")
     plt.legend()
