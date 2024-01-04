@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-
+import parameters
+import hyperparameters
 
 def single_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses):
 
@@ -33,7 +34,7 @@ def single_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses):
     plt.savefig("graph_log_batch_mean_RMSE_30_0_0001_loss_MSE.png")
     plt.close()
 
-def loss_plots(train_losses, test_losses, train_rmses, test_rmses):
+def loss_plots(train_losses, test_losses, train_rmses, test_rmses, learning_rate): #aggiungi come argomento il miglior lr
 
 
     #plots the loss and RMSE for all the epochs
@@ -45,8 +46,10 @@ def loss_plots(train_losses, test_losses, train_rmses, test_rmses):
     plt.ylabel("Loss")
     plt.legend()
     plt.show()
-    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/graph_mean_180_epochs_RLR_40_hits_5_DNN_loss_50_0_0005_loss_MAE_batch_512_dropout_simpler_mlp_knn_10_1file.png")
+    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/graph_mean_loss_" + str(hyperparameters.number_epochs) + "epochs_RLR_lr_" + str(learning_rate) +"_" +str(parameters.n_hits)+"_hits_"+str(hyperparameters.N_layers) +"_DNN_ "+str(hyperparameters.N_features) +"_loss_MAE_batch_ "+str(hyperparameters.batch_size) + "_dropout_simpler_mlp_knn_" + str(hyperparameters.n_neighbors) +".png")
     plt.close()
+
+#model_lr_' + best_lr_str + 'early_stop_RLR_'+ str(parameters.n_hits)+'_hits_'+str(hyperparameters.N_layers) +'DNN_ '+str(hyperparameters.N_features) +'_loss_MAE_batch_ '+str(hyperparameters.batch_size) + '_dropout_simpler_mlp_knn_' + str(hyperparameters.n_neighbors) +'.pth
 
     plt.figure(figsize=(10, 5))
     plt.title("Training and Validation RMSE")
@@ -56,6 +59,6 @@ def loss_plots(train_losses, test_losses, train_rmses, test_rmses):
     plt.ylabel("Loss")
     plt.legend()
     plt.show()
-    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/graph_mean_180_epochs_RLR_40_hits_5_DNN_RMSE_50_0_0005_loss_MAE_batch_512_dropout_simpler_mlp_knn_10_1file.png")
+    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/graph_mean_RMSE_" + str(hyperparameters.number_epochs) + "epochs_RLR_lr_" + str(learning_rate) +"_"+ str(parameters.n_hits)+"_hits_"+str(hyperparameters.N_layers) +"_DNN_ "+str(hyperparameters.N_features) +"_loss_MAE_batch_ "+str(hyperparameters.batch_size) + "_dropout_simpler_mlp_knn_" + str(hyperparameters.n_neighbors) + ".png")
     plt.close()
 

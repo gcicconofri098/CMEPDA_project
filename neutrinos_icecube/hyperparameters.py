@@ -12,9 +12,11 @@
 
 n_neighbors = 10
 N_features = 50
+N_layers = 5 #doesn't actually do anything, just a placeholder
 dropout_value = 0.1
 learning_rate = 0.0005
 number_epochs = 190
+batch_size = 512
 
 #Early stopping
 
@@ -24,4 +26,4 @@ min_delta = 0.001
 
 #Grid_search hyperparameters
 
-learning_rate_grid = [0.01, 0.005, 0.001, 0.0005]
+learning_rate_grid = [0.01, 0.005, 0.001]

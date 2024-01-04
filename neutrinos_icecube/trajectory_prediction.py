@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     DATA_PATH =os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets/')
     print(DATA_PATH)
-    if os.path.isfile(DATA_PATH + 'data_train.pickle') == False or os.path.isfile(DATA_PATH + 'data_test.pickle') == False or os.path.isfile(DATA_PATH + 'data_val.pickle') == False:
+    if os.path.isfile(DATA_PATH + 'data_train_100_hits.pickle') == False or os.path.isfile(DATA_PATH + 'data_test_100_hits.pickle') == False or os.path.isfile(DATA_PATH + 'data_val_100_hits.pickle') == False:
 
         print("some of the datasets were not created, creating the datasets")
 
@@ -137,24 +137,24 @@ if __name__ == "__main__":
         else:
             torch_tensor_test = tensor_creator(X_test, Y_test)
         
-        with open(DATA_PATH +'data_train.pickle', 'xb') as output_train:
+        with open(DATA_PATH +'data_train_100_hits.pickle', 'xb') as output_train:
             pickle.dump(torch_tensor_train, output_train)
 
-        with open(DATA_PATH + 'data_val.pickle', 'xb') as output_val:
+        with open(DATA_PATH + 'data_val_100_hits.pickle', 'xb') as output_val:
             pickle.dump(torch_tensor_val, output_val)
         
-        with open(DATA_PATH + 'data_test.pickle', 'xb') as output_test:
+        with open(DATA_PATH + 'data_test_100_hits.pickle', 'xb') as output_test:
             pickle.dump(torch_tensor_test, output_test)
         
         print("created the datasets, proceding with the training")
 
     print("opening the datasets")
 
-    with open(DATA_PATH + 'data_train.pickle', 'rb') as data_train:
+    with open(DATA_PATH + 'data_train_100_hits.pickle', 'rb') as data_train:
         
         tensor_train = pickle.load(data_train)
     
-    with open(DATA_PATH + 'data_val.pickle', 'rb') as data_val:
+    with open(DATA_PATH + 'data_val_100_hits.pickle', 'rb') as data_val:
         
         tensor_val = pickle.load(data_val)
 
@@ -168,10 +168,10 @@ if __name__ == "__main__":
 
     logger.info("starting the training")
 
-    train_losses, val_losses, train_rmses, val_rmses = training_function(model, dataset_train, dataset_val)
+    train_losses, val_losses, train_rmses, val_rmses, best_lr = training_function(model, dataset_train, dataset_val)
 
     if not parameters.debug_value:
-        loss_plots(train_losses, val_losses, train_rmses, val_rmses)
+        loss_plots(train_losses, val_losses, train_rmses, val_rmses, best_lr)
     else:
         single_batch_loss_plots(train_losses, val_losses, train_rmses, val_rmses)
 
