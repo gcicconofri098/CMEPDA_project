@@ -57,8 +57,8 @@ def dataset_skimmer(df):
                                 .drop_duplicates(["event_id", "sensor_id"])
                             )  # keep the sorting on the charge
 
-    # add a counter of hits per event, and drops hits after the 25th one
-
+    # add a counter of hits per event, and drops hits after 
+    
     df_with_geom2["n_counter"] = df_with_geom2.groupby("event_id").cumcount()
 
     df_with_geom2 = df_with_geom2[df_with_geom2.n_counter < parameters.n_hits]

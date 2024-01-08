@@ -2,18 +2,16 @@
 
 from torch.utils.data import Dataset
 
-def dataset_creator(train_tensor, test_tensor):
+def dataset_creator(tensor):
 
     """
     Creates a Dataset from the list of Data in input.
 
     Args:
-        train_tensor (list of torch_geometric.Data): list of Data for the training 
-        test_tensor (list of torch_geometric.Data): list of Data for the test
+       tensor (list of torch_geometric.Data): list of Data for training, validation or test
 
     Returns:
-        custom_dataset_train (torch.utils.data.Dataset): Dataset for the training
-        custom_dataset_test (torch.utils.data.Dataset): Dataset for the testing
+        custom_dataset (torch.utils.data.Dataset): Dataset for training, validation or test
     """
 
     class MyDataset(Dataset):
@@ -35,7 +33,6 @@ def dataset_creator(train_tensor, test_tensor):
             data = self.data_list[idx]
             return data
      
-    custom_dataset_train = MyDataset(train_tensor)
-    custom_dataset_test = MyDataset(test_tensor)
+    custom_dataset = MyDataset(tensor)
 
-    return custom_dataset_train, custom_dataset_test
+    return custom_dataset

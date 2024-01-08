@@ -70,8 +70,11 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
         """
 
         squared_diff = (y_true - y_pred) ** 2
+  
         mean_squared_error = torch.mean(squared_diff)
+        
         rmse = torch.sqrt(mean_squared_error)
+
         return rmse
 
     loss_func = torch.nn.L1Loss()
@@ -83,6 +86,8 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
     # print(type(batch))
     # print(batch.batch)
 
+    optimizer = torch.optim.Adam(model.parameters(), lr=hyperparameters.learning_rate)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience= 7, factor=0.5)
 
 
     def train(model, optimizer, loader):
@@ -114,6 +119,7 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
         batch_train_rmse = []
 
         for batch_idx, data in enumerate(loader):
+
             optimizer.zero_grad()
 
             output = model(data)
@@ -125,7 +131,7 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
             optimizer.step()
             total_loss += loss.item()
             total_rmse += root_mean_squared_error(data.y, output).item()
-
+            
             batch_train_loss.append(loss.item())
             batch_train_rmse.append(root_mean_squared_error(data.y, output).item())
 
@@ -182,80 +188,53 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
         else:
             return average_loss, average_rmse
 
-
-
     number_of_epochs = 1 if parameters.debug_value else hyperparameters.number_epochs
 
-    best_val_loss = float('inf')
-    best_model_weights = None
-    
-    best_lr = 0
-    for lr_grid in hyperparameters.learning_rate_grid:
 
-        train_losses = []
-        val_losses = []
+    train_losses = []
+    val_losses = []
 
-        train_rmses = []
-        val_rmses = []
+    train_rmses = []
+    val_rmses = []
 
-        current_loop_best_val_loss = float('inf')
-        current_loop_best_weights = None
-        early_stopper = EarlyStopper(patience=hyperparameters.patience, min_delta=hyperparameters.min_delta)
-        optimizer = torch.optim.Adam(model.parameters(), lr=lr_grid)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience= 7)
+    #early_stopper = EarlyStopper(patience=hyperparameters.patience, min_delta=hyperparameters.min_delta)
 
-        for epoch in range(1, number_of_epochs +1):
+    for epoch in range(1, number_of_epochs +1):
 
-            train_loss, train_rmse = train(model, optimizer, train_loader)
-            val_loss, val_rmse = evaluate(model, val_loader)
-            
-            scheduler.step(val_loss)
-            #checks if either the loss function or the RMSE, both for training and validation, have NaN values,
-            #and stops the training if so
-            if (
-                math.isnan(train_loss)
-                or math.isnan(train_rmse)
-                or math.isinf(train_loss)
-                or math.isinf(train_rmse)
-                or math.isnan(val_loss)
-                or math.isnan(val_rmse)
-                or math.isinf(val_loss)
-                or math.isinf(val_rmse)
-            ):
-                print("Training stopped due to NaN or infinite values.")
-                break
-            
+        train_loss, train_rmse = train(model, optimizer, train_loader)
+        val_loss, val_rmse = evaluate(model, val_loader)
+        
+        scheduler.step(val_loss)
 
-            val_losses.append(val_loss)
-            train_losses.append(train_loss)
+        #checks if either the loss function or the RMSE, both for training and validation, have NaN values,
+        #and stops the training if so
+        if (
+            math.isnan(train_loss)
+            or math.isnan(train_rmse)
+            or math.isinf(train_loss)
+            or math.isinf(train_rmse)
+            or math.isnan(val_loss)
+            or math.isnan(val_rmse)
+            or math.isinf(val_loss)
+            or math.isinf(val_rmse)
+        ):
+            print("Training stopped due to NaN or infinite values.")
+            break
+        
 
-            val_rmses.append(val_rmse)
-            train_rmses.append(train_rmse)
+        val_losses.append(val_loss)
+        train_losses.append(train_loss)
 
-            logger.info(
-                    f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, Train RMSE: {train_rmse:.4f}, Validation RMSE: {val_rmse: .4f}"
-                )
-            
-            if val_loss < current_loop_best_val_loss:
-                current_loop_best_val_loss = val_loss
-                current_loop_best_weights = model.state_dict()
-                logger.info(f"current best validation loss value is {current_loop_best_val_loss} for learning rate {lr_grid}")
+        val_rmses.append(val_rmse)
+        train_rmses.append(train_rmse)
 
-            if early_stopper.early_stop(val_loss):
-                logger.info("Stopping the training with early stopping")
-                print(f"current best validation loss value is {current_loop_best_val_loss} for learning rate {lr_grid}")
-                break
+        logger.info(
+                f"Epoch: {epoch:02d}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, Train RMSE: {train_rmse:.4f}, Validation RMSE: {val_rmse: .4f}"
+            )
+        
+    #torch.save(best_model_weights, 'neutrinos_icecube/saved_models/model_lr_0_008_no_early_stop_RLR_'+ str(parameters.n_hits)+'_hits_'+str(hyperparameters.N_layers) +'DNN_ '+str(hyperparameters.N_features) +'_loss_MAE_batch_ '+str(hyperparameters.batch_size) + '_dropout_simpler_mlp_knn_' + str(hyperparameters.n_neighbors) +'.pth')
 
-        if current_loop_best_val_loss < best_val_loss:
-            best_val_loss = current_loop_best_val_loss
-            best_model_weights = current_loop_best_weights
-            best_lr = lr_grid
-            best_lr_str = str(best_lr).replace(".", "_")
-            print(f"best value loss is {best_val_loss} with learning rate {lr_grid}")
-            selected_train_losses, selected_val_losses, selected_train_rmses, selected_val_rmses = train_losses, val_losses, train_rmses, val_rmses
-    
-    print(f"final best value loss is {best_val_loss} with learning rate {best_lr}")
+    return train_losses, val_losses, train_rmses, val_rmses, hyperparameters.learning_rate
 
-    torch.save(best_model_weights, 'neutrinos_icecube/saved_models/model_lr_' + best_lr_str + 'early_stop_RLR_'+ str(parameters.n_hits)+'_hits_'+str(hyperparameters.N_layers) +'DNN_ '+str(hyperparameters.N_features) +'_loss_MAE_batch_ '+str(hyperparameters.batch_size) + '_dropout_simpler_mlp_knn_' + str(hyperparameters.n_neighbors) +'.pth')
 
-    return selected_train_losses, selected_val_losses, selected_train_rmses, selected_val_rmses, best_lr
+

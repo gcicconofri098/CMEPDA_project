@@ -10,12 +10,12 @@
         min_delta (float): value of the validation loss difference between two epochs
 '''
 
-n_neighbors = 10
-N_features = 50
-N_layers = 4 #doesn't actually do anything, just a placeholder
+n_neighbors = 6
+N_features = 30
+N_layers = 3 #doesn't actually do anything, just a placeholder
 dropout_value = 0.1
-learning_rate = 0.0005
-number_epochs = 190
+learning_rate = 0.005
+number_epochs = 150
 batch_size = 512
 
 #Early stopping
@@ -24,6 +24,3 @@ patience = 8
 min_delta = 0.001
 
 
-#Grid_search hyperparameters
-
-learning_rate_grid = [0.01, 0.005, 0.001]

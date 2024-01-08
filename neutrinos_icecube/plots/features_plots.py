@@ -30,13 +30,13 @@ if __name__=='__main__':
     df3 = df2.merge(geom, how="left", on="sensor_id").reset_index(drop=True)
 
 
-    plt.hist(df1["charge"],bins=100, range=[0,10],histtype='step', label='no auxiliary hits')
-    plt.hist(df3["charge"],bins=100, range=[0,10],histtype='step', label='with auxiliary hits')
+    plt.hist(df1["charge"],bins=50, range=[0,5],histtype='step', alpha=0.8,label='no auxiliary hits')
+    #plt.hist(df3["charge"],bins=100, range=[0,4],histtype='step', label='with auxiliary hits')
     plt.xlabel("Charge [A.U.]")
     plt.title("Charge distribution")
     plt.ylabel("Events")
-    plt.legend()
-    plt.savefig(PATH + "/feature_plots/charge_all.png")
+    #plt.legend()
+    plt.savefig(PATH + "/feature_plots/charge.png")
     plt.yscale('log')
     plt.close()
 
@@ -67,27 +67,27 @@ if __name__=='__main__':
     cumulative_probabilities_aux = np.arange(1, len(sorted_maxima_aux) + 1) / len(sorted_maxima_aux)
 
     plt.plot(sorted_maxima,cumulative_probabilities, label='no auxiliary hits')
-    plt.plot(sorted_maxima_aux,cumulative_probabilities_aux, label='with auxiliary hits')
+    #plt.plot(sorted_maxima_aux,cumulative_probabilities_aux, label='with auxiliary hits')
 
     plt.yscale("log")
     plt.title("Cumulative distribution of the number of hits per event")
     plt.xlabel("Number of hits")
     plt.ylabel("Cumulative distribution")
-    plt.legend()
-    plt.xlim(0, 100)
+    #plt.legend()
+    plt.xlim(0, 50)
     plt.grid()
-    plt.savefig(PATH + "/feature_plots/cumulative_n_hits_all.png")
+    plt.savefig(PATH + "/feature_plots/cumulative_n_hits.png")
     plt.close()
 
     plt.hist(df1["time"],bins=50, range=[5500,80000],histtype='step',  label='no auxiliary hits')
-    plt.hist(df3["time"],bins=50, range=[5500,80000],histtype='step', label='with auxiliary hits')
-    plt.legend()
-    plt.title("")
+    #plt.hist(df3["time"],bins=50, range=[5500,80000],histtype='step', label='with auxiliary hits')
+    #plt.legend()
+    plt.title("Time distribution")
     plt.xlabel("Time [ns]")
     plt.ylabel("Events")
     plt.yscale('log')
 
-    plt.savefig(PATH + "/feature_plots/time_all.png")
+    plt.savefig(PATH + "/feature_plots/time.png")
     plt.close()
 
 

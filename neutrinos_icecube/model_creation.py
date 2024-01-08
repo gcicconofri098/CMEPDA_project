@@ -47,12 +47,14 @@ def model_creator():
 
             #creates a MLP used as message
             self.mlp = nn.Sequential(
-                nn.Linear(2 * in_channels, out_channels),
+                nn.Linear(2 * in_channels, out_channels), # 2 because we pass both h_i and (h_j-h_i)
+                #nn.BatchNorm1d(out_channels),
                 nn.ReLU(),
                 nn.Linear(out_channels, out_channels),
             )
             self.simpler_mlp = nn.Sequential(
                 nn.Linear(out_channels, out_channels),
+                #nn.BatchNorm1d(out_channels),
                 nn.ReLU(),
                 nn.Linear(out_channels, out_channels),
             )
@@ -110,7 +112,7 @@ def model_creator():
             super().__init__()
 
             #defines the layers that will be then used in the GNN
-            self.f1 = DNNLayer(6, hyperparameters.N_features)
+            self.f1 = DNNLayer(6, hyperparameters.N_features) #6 is the number of features  
             self.f2 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
             self.f3 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
             self.f4 = DNNLayer(hyperparameters.N_features, hyperparameters.N_features)
@@ -138,50 +140,52 @@ def model_creator():
             logger.debug(f"shape before f1: {x.shape}")
 
             h = self.f1(h=x, edge_index=edge_index)
-            h = self.dropout(h)
             logger.debug(f"shape after f1: {h.shape}")
 
             h = h.relu()
+
             logger.debug(f"shape after relu1: {h.shape}")
+            h = self.dropout(h)
 
             h = self.f2(h=h, edge_index=edge_index)
-            h = self.dropout(h)
 
             logger.debug(f"shape after f2: {h.shape}")
 
             h = h.relu()
+
             logger.debug(f"shape after relu2: {h.shape}")
+            h = self.dropout(h)
 
             h = self.f3(h=h, edge_index=edge_index)
-            h = self.dropout(h)
 
             logger.debug(f"shape after f3: {h.shape}")
 
-            h = h.relu()
-            logger.debug(f"shape after relu3: {h.shape}")
+            # h = h.relu()
+            # logger.debug(f"shape after relu3: {h.shape}")
+            # h = self.dropout(h)
 
-            h = self.f4(h=h, edge_index= edge_index)
-            h = self.dropout(h)
+            # h = self.f4(h=h, edge_index= edge_index)
 
-            logger.debug(f"shape after f4: {h.shape}")
+            # logger.debug(f"shape after f4: {h.shape}")
 
-            h = h.relu()
-            logger.debug(f"shape after relu4: {h.shape}")
+            # h = h.relu()
+            # logger.debug(f"shape after relu4: {h.shape}")
+            # h = self.dropout(h)
 
             # h = self.f5(h=h, edge_index= edge_index)
-            # h = self.dropout(h)
 
             # logger.debug(f"shape after f5: {h.shape}")
 
             # h = h.relu()
             # logger.debug(f"shape after relu5: {h.shape}")
+            # h = self.dropout(h)
 
             # h = self.f6(h=h, edge_index= edge_index)
-            # h = self.dropout(h)
             # logger.debug(f"shape after f6: {h.shape}")
 
             # h = h.relu()
             # logger.debug(f"shape after relu6: {h.shape}")
+            # h = self.dropout(h)
 
             h = self.global_pooling(h, data.batch)
 

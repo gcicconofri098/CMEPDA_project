@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     DATA_PATH =os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets/')
     print(DATA_PATH)
-    if os.path.isfile(DATA_PATH + 'data_train_40_hits.pickle') == False or os.path.isfile(DATA_PATH + 'data_test_40_hits.pickle') == False or os.path.isfile(DATA_PATH + 'data_val_40_hits.pickle') == False:
+    if os.path.isfile(DATA_PATH + 'data_train_25_hits_knn_6_0_7.pickle') == False or os.path.isfile(DATA_PATH + 'data_test_25_hits_knn_6_0_15.pickle') == False or os.path.isfile(DATA_PATH + 'data_val_25_hits_knn_6_0_15.pickle') == False:
 
         print("some of the datasets were not created, creating the datasets")
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
         #splits the dataset into training and test 
         X_train, X_temp, Y_train, Y_temp = train_test_split(
-            combined_data, combined_res, test_size=0.4, random_state=42
+            combined_data, combined_res, test_size=0.7, random_state=42
         )
 
         X_val, X_test, Y_val, Y_test = train_test_split(X_temp, Y_temp, test_size=0.5, random_state=42)
@@ -137,26 +137,33 @@ if __name__ == "__main__":
         else:
             torch_tensor_test = tensor_creator(X_test, Y_test)
         
-        with open(DATA_PATH +'data_train_40_hits.pickle', 'xb') as output_train:
+        with open(DATA_PATH +'data_train_25_hits_knn_6_0_7.pickle', 'xb') as output_train:
             pickle.dump(torch_tensor_train, output_train)
 
-        with open(DATA_PATH + 'data_val_40_hits.pickle', 'xb') as output_val:
+        with open(DATA_PATH + 'data_val_25_hits_knn_6_0_15.pickle', 'xb') as output_val:
             pickle.dump(torch_tensor_val, output_val)
         
-        with open(DATA_PATH + 'data_test_40_hits.pickle', 'xb') as output_test:
+        with open(DATA_PATH + 'data_test_25_hits_knn_6_0_15.pickle', 'xb') as output_test:
             pickle.dump(torch_tensor_test, output_test)
         
         print("created the datasets, proceding with the training")
 
     print("opening the datasets")
 
-    with open(DATA_PATH + 'data_train_40_hits.pickle', 'rb') as data_train:
+    with open(DATA_PATH + 'data_train_25_hits_knn_6_0_7.pickle', 'rb') as data_train:
         
         tensor_train = pickle.load(data_train)
-    
-    with open(DATA_PATH + 'data_val_40_hits.pickle', 'rb') as data_val:
+    if not parameters.optimal_hyperparameters_found:
         
-        tensor_val = pickle.load(data_val)
+        logger.info(f"optimal_hyperparameters_found set to {parameters.optimal_hyperparameters_found}, creating the tensor")
+        with open(DATA_PATH + 'data_val_25_hits_knn_6_0_15.pickle', 'rb') as data_val:
+            tensor_val_or_test = pickle.load(data_val)
+    else: 
+
+        logger.info(f"optimal_hyperparameters_found set to {parameters.optimal_hyperparameters_found}, creating the tensor")
+        with open(DATA_PATH + 'data_test_25_hits_knn_6_0_15.pickle', 'rb') as data_test:
+        
+            tensor_val_or_test = pickle.load(data_test)
 
     logger.info("creating the model")
 
@@ -164,14 +171,15 @@ if __name__ == "__main__":
 
     logger.info("creating the data tensors")
 
-    dataset_train, dataset_val = dataset_creator(tensor_train, tensor_val)
-
+    dataset_train = dataset_creator(tensor_train)
+    dataset_val_or_test = dataset_creator(tensor_val_or_test)
+    print(len(dataset_val_or_test))
     logger.info("starting the training")
 
-    train_losses, val_losses, train_rmses, val_rmses, best_lr = training_function(model, dataset_train, dataset_val)
+    train_losses, val_or_test_losses, train_rmses, val_or_test_rmses, best_lr = training_function(model, dataset_train, dataset_val_or_test)
 
     if not parameters.debug_value:
-        loss_plots(train_losses, val_losses, train_rmses, val_rmses, best_lr)
+        loss_plots(train_losses, val_or_test_losses, train_rmses, val_or_test_rmses, best_lr)
     else:
-        single_batch_loss_plots(train_losses, val_losses, train_rmses, val_rmses)
+        single_batch_loss_plots(train_losses, val_or_test_losses, train_rmses, val_or_test_rmses)
 

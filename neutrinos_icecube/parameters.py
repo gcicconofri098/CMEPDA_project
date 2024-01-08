@@ -12,9 +12,10 @@
 import logging
 
 
-n_hits = 40
+n_hits = 25
 
 log_value = logging.INFO
 graph_drawer = False
 debug_value = False
 use_sliced_tensor = False
+optimal_hyperparameters_found = True
