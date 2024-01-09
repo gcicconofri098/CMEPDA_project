@@ -22,4 +22,4 @@ and consists of a number of events that record the hits inside the detectors and
 
 # Documentation
 
-The documentation can be found at the following link (work in progress): http://neutrinos-icecube.readthedocs.io/
+The documentation can be found at the following link: http://neutrinos-icecube.readthedocs.io/
