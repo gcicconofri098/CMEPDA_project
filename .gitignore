@@ -16,7 +16,7 @@ batch_1.parquet
 sensor_geometry.csv
 train_meta.parquet
 batch_2.parquet
-
+script.py
 saved_models
 
 
