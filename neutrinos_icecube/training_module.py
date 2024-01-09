@@ -29,8 +29,11 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
     Returns:
 
         train_losses (list): list of the loss values through the training
+
         val_losses (list): list of the loss values through the validation/test
+
         train_rmses (list): list of the RMSE values through the training
+        
         val_rmses (list): list of the RMSE values through the validation/test
     
     """

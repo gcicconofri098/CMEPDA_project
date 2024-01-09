@@ -7,7 +7,9 @@ import networkx as nx
 
 def graph_visualisation(data, event_id, label):
     """Plots the graphs on the xy plane and yz plane.
+
     Args:
+    
         data (torch_geometric.Data): Data containing both targets and features
     """
     g = torch_geometric.utils.to_networkx(data)
