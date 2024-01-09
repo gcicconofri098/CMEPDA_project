@@ -4,7 +4,7 @@
 
         n_hits (int): number of hits per event.
 
-        log_value (int): level of logging.
+        log_value (logging.FLAG): level of logging.
 
         graph_drawer (bool): flag that enables the graph drawer function.
 
