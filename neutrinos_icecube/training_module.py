@@ -87,7 +87,7 @@ def training_function(model, custom_dataset_train, custom_dataset_val):
     # print(batch.batch)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=hyperparameters.learning_rate)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience= 7, factor=0.5)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience= 7, factor=0.2)
 
 
     def train(model, optimizer, loader):

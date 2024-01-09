@@ -22,7 +22,7 @@ from logs.logging_conf import setup_logging
 
 logger = setup_logging('main_log')
 
-torch.set_num_threads(35)
+torch.set_num_threads(40)
 
 
 #pylint:disable = invalid-name
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     DATA_PATH =os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets/')
     print(DATA_PATH)
-    if os.path.isfile(DATA_PATH + 'data_train_25_hits_knn_6_0_7.pickle') == False or os.path.isfile(DATA_PATH + 'data_test_25_hits_knn_6_0_15.pickle') == False or os.path.isfile(DATA_PATH + 'data_val_25_hits_knn_6_0_15.pickle') == False:
+    if os.path.isfile(DATA_PATH + 'data_train_40_hits.pickle') == False or os.path.isfile(DATA_PATH + 'data_test_40_hits.pickle') == False or os.path.isfile(DATA_PATH + 'data_val_40_hits.pickle') == False:
 
         print("some of the datasets were not created, creating the datasets")
 
@@ -137,31 +137,31 @@ if __name__ == "__main__":
         else:
             torch_tensor_test = tensor_creator(X_test, Y_test)
         
-        with open(DATA_PATH +'data_train_25_hits_knn_6_0_7.pickle', 'xb') as output_train:
+        with open(DATA_PATH +'data_train_40_hits.pickle', 'xb') as output_train:
             pickle.dump(torch_tensor_train, output_train)
 
-        with open(DATA_PATH + 'data_val_25_hits_knn_6_0_15.pickle', 'xb') as output_val:
+        with open(DATA_PATH + 'data_val_40_hits.pickle', 'xb') as output_val:
             pickle.dump(torch_tensor_val, output_val)
         
-        with open(DATA_PATH + 'data_test_25_hits_knn_6_0_15.pickle', 'xb') as output_test:
+        with open(DATA_PATH + 'data_test_40_hits.pickle', 'xb') as output_test:
             pickle.dump(torch_tensor_test, output_test)
         
         print("created the datasets, proceding with the training")
 
     print("opening the datasets")
 
-    with open(DATA_PATH + 'data_train_25_hits_knn_6_0_7.pickle', 'rb') as data_train:
+    with open(DATA_PATH + 'data_train_40_hits.pickle', 'rb') as data_train:
         
         tensor_train = pickle.load(data_train)
     if not parameters.optimal_hyperparameters_found:
         
         logger.info(f"optimal_hyperparameters_found set to {parameters.optimal_hyperparameters_found}, creating the tensor")
-        with open(DATA_PATH + 'data_val_25_hits_knn_6_0_15.pickle', 'rb') as data_val:
+        with open(DATA_PATH + 'data_val_40_hits.pickle', 'rb') as data_val:
             tensor_val_or_test = pickle.load(data_val)
     else: 
 
         logger.info(f"optimal_hyperparameters_found set to {parameters.optimal_hyperparameters_found}, creating the tensor")
-        with open(DATA_PATH + 'data_test_25_hits_knn_6_0_15.pickle', 'rb') as data_test:
+        with open(DATA_PATH + 'data_test_40_hits.pickle', 'rb') as data_test:
         
             tensor_val_or_test = pickle.load(data_test)
 
@@ -173,7 +173,6 @@ if __name__ == "__main__":
 
     dataset_train = dataset_creator(tensor_train)
     dataset_val_or_test = dataset_creator(tensor_val_or_test)
-    print(len(dataset_val_or_test))
     logger.info("starting the training")
 
     train_losses, val_or_test_losses, train_rmses, val_or_test_rmses, best_lr = training_function(model, dataset_train, dataset_val_or_test)

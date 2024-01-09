@@ -160,25 +160,25 @@ def model_creator():
 
             logger.debug(f"shape after f3: {h.shape}")
 
-            # h = h.relu()
-            # logger.debug(f"shape after relu3: {h.shape}")
-            # h = self.dropout(h)
+            h = h.relu()
+            logger.debug(f"shape after relu3: {h.shape}")
+            h = self.dropout(h)
 
-            # h = self.f4(h=h, edge_index= edge_index)
+            h = self.f4(h=h, edge_index= edge_index)
 
-            # logger.debug(f"shape after f4: {h.shape}")
+            logger.debug(f"shape after f4: {h.shape}")
 
-            # h = h.relu()
-            # logger.debug(f"shape after relu4: {h.shape}")
-            # h = self.dropout(h)
+            h = h.relu()
+            logger.debug(f"shape after relu4: {h.shape}")
+            h = self.dropout(h)
 
-            # h = self.f5(h=h, edge_index= edge_index)
+            h = self.f5(h=h, edge_index= edge_index)
 
-            # logger.debug(f"shape after f5: {h.shape}")
+            logger.debug(f"shape after f5: {h.shape}")
 
-            # h = h.relu()
-            # logger.debug(f"shape after relu5: {h.shape}")
-            # h = self.dropout(h)
+            h = h.relu()
+            logger.debug(f"shape after relu5: {h.shape}")
+            h = self.dropout(h)
 
             # h = self.f6(h=h, edge_index= edge_index)
             # logger.debug(f"shape after f6: {h.shape}")

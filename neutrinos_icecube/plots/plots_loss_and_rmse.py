@@ -7,7 +7,6 @@ def single_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses):
     """
     Plots the loss and the RMSE for a single batch
 
-
     """
 
     plt.figure(figsize=(10, 5))
@@ -51,7 +50,7 @@ def loss_plots(train_losses, test_losses, train_rmses, test_rmses, learning_rate
     plt.ylabel("Loss")
     plt.legend()
     plt.show()
-    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/graph_mean_1_test_dataset_batch_norm_loss_" + str(hyperparameters.number_epochs) + "epochs_RLR_lr_" + str(learning_rate) +"_" +str(parameters.n_hits)+"_hits_"+str(hyperparameters.N_layers) +"_DNN_switched_dropout_position_ "+str(hyperparameters.N_features) +"_loss_MAE_batch_ "+str(hyperparameters.batch_size) + "_dropout_0_2_simpler_mlp_knn_" + str(hyperparameters.n_neighbors) +".png")
+    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/graph_mean_5_test_dataset_loss_" + str(hyperparameters.number_epochs) + "epochs_RLR_lr_" + str(learning_rate) +"_" +str(parameters.n_hits)+"_hits_"+str(hyperparameters.N_layers) +"_DNN_switched_dropout_position_ "+str(hyperparameters.N_features) +"_loss_MAE_batch_ "+str(hyperparameters.batch_size) + "_dropout_0_2_simpler_mlp_knn_" + str(hyperparameters.n_neighbors) +".png")
     plt.close()
 
     plt.figure(figsize=(10, 5))
@@ -62,6 +61,6 @@ def loss_plots(train_losses, test_losses, train_rmses, test_rmses, learning_rate
     plt.ylabel("Loss")
     plt.legend()
     plt.show()
-    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/graph_mean_1_test_dataset_batch_norm_RMSE_" + str(hyperparameters.number_epochs) + "epochs_RLR_lr_" + str(learning_rate) +"_"+ str(parameters.n_hits)+"_hits_"+str(hyperparameters.N_layers) +"_DNN_switched_dropout_position_ "+str(hyperparameters.N_features) +"_loss_MAE_batch_ "+str(hyperparameters.batch_size) + "_dropout_0_2_simpler_mlp_knn_" + str(hyperparameters.n_neighbors) + ".png")
+    plt.savefig("/gpfs/ddn/cms/user/cicco/miniconda3/CMEPDA/neutrinos_icecube/plots/graph_mean_5_test_dataset_RMSE_" + str(hyperparameters.number_epochs) + "epochs_RLR_lr_" + str(learning_rate) +"_"+ str(parameters.n_hits)+"_hits_"+str(hyperparameters.N_layers) +"_DNN_switched_dropout_position_ "+str(hyperparameters.N_features) +"_loss_MAE_batch_ "+str(hyperparameters.batch_size) + "_dropout_0_2_simpler_mlp_knn_" + str(hyperparameters.n_neighbors) + ".png")
     plt.close()
 
