@@ -175,10 +175,10 @@ if __name__ == "__main__":
     dataset_val_or_test = dataset_creator(tensor_val_or_test)
     logger.info("starting the training")
 
-    train_losses, val_or_test_losses, train_rmses, val_or_test_rmses, best_lr = training_function(model, dataset_train, dataset_val_or_test)
+    train_losses, val_or_test_losses, train_rmses, val_or_test_rmses = training_function(model, dataset_train, dataset_val_or_test)
 
     if not parameters.debug_value:
-        loss_plots(train_losses, val_or_test_losses, train_rmses, val_or_test_rmses, best_lr)
+        loss_plots(train_losses, val_or_test_losses, train_rmses, val_or_test_rmses)
     else:
         single_epoch_batch_loss_plots(train_losses, val_or_test_losses, train_rmses, val_or_test_rmses)
 
