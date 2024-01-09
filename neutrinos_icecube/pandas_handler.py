@@ -151,6 +151,7 @@ def padding_function(df_with_geom):
 def unstacker(df_final):
 
     """ Creates a dataframe where each row contains one event
+
     Args:
         df_final (pandas.Dataframe): dataframe containing one hit per row
 
@@ -171,8 +172,9 @@ def unstacker(df_final):
 def targets_definer(df_final, targets):
     
     """ Creates a dataframe that contains the targets for each event
+
     Args:
-        df_final (pandas Dataframe): feature dataframe from which the event IDs are taken
+        df_final (pandas.Dataframe): feature dataframe from which the event IDs are taken
 
     Returns:
         targets (pandas.Dataframe): dataframe with azimuth and zenith for each event

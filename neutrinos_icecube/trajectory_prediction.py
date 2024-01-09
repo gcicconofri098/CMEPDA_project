@@ -15,7 +15,7 @@ from pandas_handler import dataset_skimmer, padding_function, unstacker, targets
 from model_creation import model_creator
 from tensor_creation import tensor_creator
 from training_module import training_function
-from plots.plots_loss_and_rmse import single_batch_loss_plots, loss_plots
+from plots.plots_loss_and_rmse import single_epoch_batch_loss_plots, loss_plots
 from dataset_for_training import dataset_creator
 import parameters as parameters
 from logs.logging_conf import setup_logging
@@ -180,5 +180,5 @@ if __name__ == "__main__":
     if not parameters.debug_value:
         loss_plots(train_losses, val_or_test_losses, train_rmses, val_or_test_rmses, best_lr)
     else:
-        single_batch_loss_plots(train_losses, val_or_test_losses, train_rmses, val_or_test_rmses)
+        single_epoch_batch_loss_plots(train_losses, val_or_test_losses, train_rmses, val_or_test_rmses)
 

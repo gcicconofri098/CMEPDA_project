@@ -2,10 +2,17 @@ import matplotlib.pyplot as plt
 import parameters
 import hyperparameters
 
-def single_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses):
+def single_epoch_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses):
 
     """
-    Plots the loss and the RMSE for a single batch
+    Plots the loss and the RMSE for a single epoch
+
+    Args:
+
+        train_losses (list): list of the loss values through one training epoch
+        test_losses (list): list of the loss values through one validation/test epoch
+        train_rmses (list): list of the RMSE values through one training epoch
+        test_rmses (list): list of the RMSE values through one validation/test epoch
 
     """
 
@@ -34,6 +41,18 @@ def single_batch_loss_plots(train_losses, test_losses, train_rmses, test_rmses):
     plt.close()
 
 def loss_plots(train_losses, test_losses, train_rmses, test_rmses, learning_rate): 
+
+    """
+    Plots the loss and the RMSE for all the epochs
+
+    Args:
+
+        train_losses (list): list of the loss values through the training
+        test_losses (list): list of the loss values through the validation/test
+        train_rmses (list): list of the RMSE values through the training
+        test_rmses (list): list of the RMSE values through the validation/test
+
+    """
 
     sliced_test_losses = test_losses[1:]
     sliced_train_losses = train_losses[1:]
