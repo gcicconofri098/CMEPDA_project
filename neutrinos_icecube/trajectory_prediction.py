@@ -22,7 +22,7 @@ from logs.logging_conf import setup_logging
 
 logger = setup_logging('main_log')
 
-torch.set_num_threads(40)
+torch.set_num_threads(20)
 
 
 #pylint:disable = invalid-name
